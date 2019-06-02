@@ -1,16 +1,23 @@
 package com.server;
 
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Agent {
+	private int id;
 	private Socket socket; 
 	private String name;
 	private boolean isFree;
+	private PrintWriter writer;
+	private Scanner reader;
 	
-	public Agent(Socket socket, String name) {
+	public Agent(Socket socket, String name, PrintWriter writer, Scanner reader) {
 		this.socket = socket;
 		this.name = name;
 		this.isFree = true;
+		this.writer = writer;
+		this.reader = reader;
 	}
 	
 
@@ -30,38 +37,42 @@ public class Agent {
 		return socket;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (isFree ? 1231 : 1237);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
+
+	public int getId() {
+		return id;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Agent other = (Agent) obj;
-		if (isFree != other.isFree)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
+
+	public void setId(int id) {
+		this.id = id;
 	}
+
+
+	public PrintWriter getWriter() {
+		return writer;
+	}
+
+
+	public void setWriter(PrintWriter writer) {
+		this.writer = writer;
+	}
+
+
+	public Scanner getReader() {
+		return reader;
+	}
+
+
+	public void setReader(Scanner reader) {
+		this.reader = reader;
+	}
+
 
 	@Override
 	public String toString() {
-		return "Agent [name=" + name + ", isFree=" + isFree + "]";
+		return name;
 	}
+
 	
 	
 }

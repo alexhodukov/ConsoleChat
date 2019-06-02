@@ -3,26 +3,21 @@ package com.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class Server {
 	
-	private Queue<Agent> listAgents;
-	
-	public Agent agent;
-	public Client client;
-	
+	private ServiceManager manager;
+
 	public Server() {
-		this.listAgents = new LinkedList<>();
+		this.manager = new ServiceManager();
 	}
 
 	public void start() {
 		try (ServerSocket s = new ServerSocket(8282)) {
+			System.out.println("Server started!");
 			while (true) {
 				Socket incoming = s.accept();
-				Runnable r = new UserThreadHandler(this, incoming);
-				Thread t = new Thread(r);
+				Thread t = new Thread(new UserThreadHandler(manager, incoming));
 				t.start();
 			}
 		} catch (IOException e) {
@@ -30,16 +25,7 @@ public class Server {
 		}
 	}
 	
-	public void registerAgent(Agent agent) {
-		listAgents.add(agent);
+	public ServiceManager getManager() {
+		return manager;
 	}
-	
-	public Agent getFreeAgent() {
-		return listAgents.poll();
-	}
-	
-	public boolean isExistFreeAgents() {
-		return listAgents.size() > 0;
-	}
-
 }

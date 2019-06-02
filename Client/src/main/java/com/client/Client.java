@@ -17,7 +17,7 @@ public class Client {
 			
 			Thread tInput = new Thread(new ClientInput(reader));
 			tInput.start();
-			Thread tOutput = new Thread(new ClientOutput(writer));
+			Thread tOutput = new Thread(new ClientOutput(socket, writer));
 			tOutput.start();
 			
 			try {
@@ -32,7 +32,6 @@ public class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-	
 	}
 
 }

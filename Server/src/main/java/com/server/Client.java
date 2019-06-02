@@ -1,17 +1,25 @@
 package com.server;
 
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 public class Client {
+	private int id;
 	private Socket socket; 
 	private String name;
-	private Stack<String> listUnreadMsg;
+	private Queue<String> listUnreadMsg;
+	private PrintWriter writer;
+	private Scanner reader;
 	
-	public Client(Socket socket, String name) {
+	public Client(Socket socket, String name, PrintWriter writer, Scanner reader) {
 		this.socket = socket;
 		this.name = name;
-		this.listUnreadMsg = new Stack<>();
+		this.listUnreadMsg = new LinkedList<>();
+		this.writer = writer;
+		this.reader = reader;
 	}
 	
 	public Socket getSocket() {
@@ -22,7 +30,7 @@ public class Client {
 		return name;
 	}
 
-	public Stack<String> getListUnreadMsg() {
+	public Queue<String> getListUnreadMsg() {
 		return listUnreadMsg;
 	}
 	
@@ -30,11 +38,35 @@ public class Client {
 		return listUnreadMsg.isEmpty();
 	}
 	
-	public String getNextUnreadMsg() {
-		return listUnreadMsg.peek();
+	public String nextUnreadMsg() {
+		return listUnreadMsg.poll();
 	}
 	
-	public void pushUnreadMsg(String msg) {
-		listUnreadMsg.push(msg);
+	public void addMsg(String msg) {
+		listUnreadMsg.add(msg);
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public PrintWriter getWriter() {
+		return writer;
+	}
+
+	public void setWriter(PrintWriter writer) {
+		this.writer = writer;
+	}
+
+	public Scanner getReader() {
+		return reader;
+	}
+
+	public void setReader(Scanner reader) {
+		this.reader = reader;
 	}
 }
