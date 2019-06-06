@@ -1,23 +1,26 @@
 package com.client;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class Client {
 
 	public static void main(String[] args) {
+		
 		try (Socket socket = new Socket("localhost", 8282);
-			PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
-			Scanner reader = new Scanner(new InputStreamReader(socket.getInputStream()))) {
-			
-			Thread tInput = new Thread(new ClientInput(reader));
+			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
+			BufferedInputStream bufIn = new BufferedInputStream(socket.getInputStream());
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))		) {
+		
+			ManagerClient manager = new ManagerClient(socket);
+			Thread tInput = new Thread(new ClientInput(manager, bufIn, reader));
 			tInput.start();
-			Thread tOutput = new Thread(new ClientOutput(socket, writer));
+			Thread tOutput = new Thread(new ClientOutput(manager, bufOut));
 			tOutput.start();
 			
 			try {
