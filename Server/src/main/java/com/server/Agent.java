@@ -1,32 +1,45 @@
 package com.server;
 
-import java.io.PrintWriter;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Agent {
 	private int id;
+	private int idClient;
 	private Socket socket; 
 	private String name;
-	private boolean isFree;
-	private PrintWriter writer;
-	private Scanner reader;
 	
-	public Agent(Socket socket, String name, PrintWriter writer, Scanner reader) {
+	public Agent(Socket socket, int id, String name) {
 		this.socket = socket;
+		this.id = id;
 		this.name = name;
-		this.isFree = true;
-		this.writer = writer;
-		this.reader = reader;
 	}
 	
-
-	public boolean isFree() {
-		return isFree;
+	public void sendMessage(Message msg) {
+		try {	
+			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
+			bufOut.write(msg.getMessage());
+			bufOut.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
 	}
 
-	public void setFree(boolean isFree) {
-		this.isFree = isFree;
+	public int getIdClient() {
+		return idClient;
+	}
+
+	public void setIdClient(int idClient) {
+		this.idClient = idClient;
 	}
 
 	public String getName() {
@@ -36,37 +49,6 @@ public class Agent {
 	public Socket getSocket() {
 		return socket;
 	}
-
-
-	public int getId() {
-		return id;
-	}
-
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-
-	public PrintWriter getWriter() {
-		return writer;
-	}
-
-
-	public void setWriter(PrintWriter writer) {
-		this.writer = writer;
-	}
-
-
-	public Scanner getReader() {
-		return reader;
-	}
-
-
-	public void setReader(Scanner reader) {
-		this.reader = reader;
-	}
-
 
 	@Override
 	public String toString() {

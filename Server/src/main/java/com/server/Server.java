@@ -5,27 +5,41 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-	
-	private ServiceManager manager;
+	private Chat chat;
+	private MessageHandler msgHandler;
 
 	public Server() {
-		this.manager = new ServiceManager();
+		this.msgHandler = new MessageHandler();
+		this.chat = new Chat(msgHandler);
 	}
 
 	public void start() {
 		try (ServerSocket s = new ServerSocket(8282)) {
 			System.out.println("Server started!");
+			
+			Runnable r = () -> {
+				chat.sendMessage();
+			};
+			Thread sending = new Thread(r);
+			sending.start();
+			
 			while (true) {
 				Socket incoming = s.accept();
-				Thread t = new Thread(new UserThreadHandler(manager, incoming));
+				Thread t = new Thread(new IncomingCall(this, incoming));
 				t.start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public ServiceManager getManager() {
-		return manager;
+
+	public Chat getChat() {
+		return chat;
 	}
+
+	public MessageHandler getMsgHandler() {
+		return msgHandler;
+	}
+	
+	
 }

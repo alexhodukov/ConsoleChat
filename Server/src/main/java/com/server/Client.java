@@ -1,5 +1,7 @@
 package com.server;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -8,18 +10,26 @@ import java.util.Scanner;
 
 public class Client {
 	private int id;
+	private int idAgent;
 	private Socket socket; 
 	private String name;
 	private Queue<String> listUnreadMsg;
-	private PrintWriter writer;
-	private Scanner reader;
 	
-	public Client(Socket socket, String name, PrintWriter writer, Scanner reader) {
+	public Client(Socket socket, int id, String name) {
 		this.socket = socket;
+		this.id = id;
 		this.name = name;
 		this.listUnreadMsg = new LinkedList<>();
-		this.writer = writer;
-		this.reader = reader;
+	}
+	
+	public void sendMessage(Message msg) {
+		try {
+			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
+			bufOut.write(msg.getMessage());
+			bufOut.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Socket getSocket() {
@@ -54,19 +64,13 @@ public class Client {
 		this.id = id;
 	}
 
-	public PrintWriter getWriter() {
-		return writer;
+	public int getIdAgent() {
+		return idAgent;
 	}
 
-	public void setWriter(PrintWriter writer) {
-		this.writer = writer;
+	public void setIdAgent(int idAgent) {
+		this.idAgent = idAgent;
 	}
 
-	public Scanner getReader() {
-		return reader;
-	}
-
-	public void setReader(Scanner reader) {
-		this.reader = reader;
-	}
+	
 }

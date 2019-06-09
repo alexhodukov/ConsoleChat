@@ -1,5 +1,5 @@
 package com.server;
 
-public enum TypeUser {
+public enum Role {
 	GUEST, AGENT, CLIENT;
 }

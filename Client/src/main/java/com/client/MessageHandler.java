@@ -14,7 +14,7 @@ public class MessageHandler {
 	}
 	
 	public void processOutgoingMessage() {
-		src = src + "\n";
+		src = "REG_" + src + "\n";
 	}
 	
 	public boolean isCorrectMessage() {
