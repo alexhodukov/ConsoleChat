@@ -6,15 +6,15 @@ import java.net.Socket;
 public class ManagerClient {
 	private Socket socket;
 	private int id;
-	private Type type;
+	private Role role;
 	
 	public ManagerClient(Socket socket) {
 		this.socket = socket;
-		this.type = Type.GUEST;
+		this.role = Role.GUEST;
 	}
 	
 	public boolean isGuest() {
-		return type == Type.GUEST;
+		return role == Role.GUEST;
 	}
 	
 	public void terminateChat() {
@@ -27,4 +27,22 @@ public class ManagerClient {
 			e.printStackTrace();
 		}
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+	
+	
 }

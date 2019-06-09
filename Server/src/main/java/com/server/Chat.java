@@ -29,18 +29,42 @@ public class Chat {
 		this.listClients = new HashMap<>();
 		this.listMessages = new LinkedList<>();
 		this.execMessage = Executors.newFixedThreadPool(5);
-		this.execMessage = Executors.newCachedThreadPool();
+		this.execConnAgent = Executors.newCachedThreadPool();
 	}
 	
 	public synchronized void registerMessage(Message message) {
 		listMessages.add(message);
+		log.info("Register message " + message);
 		notifyAll();
 	}
 	
-	public void processMessage(IncomingCall incoming, String src, int id) {
-		Message msg = msgHandler.processMessage(id, src);
-
-		registerMessage(msg);
+	public void processMessage(String src, int id, Role role) {
+		Message msg = msgHandler.processMessage(src);
+		String name = "";
+		switch (role) {
+		case AGENT : {
+			int idReceiver = listAgents.get(id).getIdClient();
+			System.out.println("Chat.processMessage().idReceiver " + idReceiver);
+			name = listAgents.get(id).getName();
+			msg.setIdReceiver(idReceiver);
+			msg.setRoleReceiver(Role.CLIENT);
+			msgHandler.addNameSender(msg, name);
+			registerMessage(msg);
+		} break;
+		case CLIENT : {
+			name = listClients.get(id).getName();
+			msg.setRoleReceiver(Role.AGENT);
+			int idAgent = listClients.get(id).getIdAgent();
+			if (idAgent == 0) {
+				connectAgent(id, msg);
+			} else {
+				msg.setIdReceiver(idAgent);
+				msgHandler.addNameSender(msg, name);
+				registerMessage(msg);
+			}
+		} break;
+		}
+		
 	}
 	
 	public synchronized void sendMessage() {
@@ -54,9 +78,9 @@ public class Chat {
 		
 		Runnable r = () -> {
 			Message msg = listMessages.poll();
-			System.out.println("msg " + msg);
+//			System.out.println("msg " + msg);
 			int id = msg.getIdReceiver();
-			switch (msg.getRole()) {
+			switch (msg.getRoleReceiver()) {
 			case AGENT : {
 				listAgents.get(id).sendMessage(msg);
 			} break;
@@ -70,11 +94,13 @@ public class Chat {
 	
 	public synchronized void registerAgent(Agent agent) {
 		freeAgents.add(agent);
+		log.info("Registration Agent " + agent);
 		notifyAll();
 	}
 	
 	public synchronized void registerClient(Client client) {
 		listClients.put(client.getId(), client);
+		log.info("Registration Client " + client);
 	}
 	
 	public synchronized Agent getFreeAgent() {
@@ -85,6 +111,7 @@ public class Chat {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		log.info("Getting Free Agent " + freeAgents.peek());
 		return freeAgents.poll();
 	}
 	
@@ -93,39 +120,42 @@ public class Chat {
 	}
 	
 	public void createUser(Socket socket, Message msg) {
-		switch (msg.getRole()) {
+		switch (msg.getRoleReceiver()) {
 		case CLIENT : {
-			createClient(socket, msg.getIdReceiver(), msg.getName());
+			createClient(socket, msg.getIdReceiver(), msg.getNameSender());
 		} break;
 		case AGENT : {
-			createAgent(socket, msg.getIdReceiver(), msg.getName());
+			createAgent(socket, msg.getIdReceiver(), msg);
 		} break;
 		}
 	}
 	
-	public void createAgent(Socket socket, int id, String name) {
-		Agent agent = new Agent(socket, id, name);
-//		agent.setId(incIdAgent.incrementAndGet());
+	public void createAgent(Socket socket, int id, Message msg) {
+		Agent agent = new Agent(socket, id, msg.getNameSender());
 		registerAgent(agent);
-		log.info("Registration agent " + name);
+		agent.sendMessage(msg);
+//		log.info("Registration agent " + msg.getNameSender());
 	}
 	
 	public void createClient(Socket socket, int id, String name) {
 		Client client = new Client(socket, id, name);
-//		client.setId(incIdClient.incrementAndGet());
 		registerClient(client);
-		log.info("Registration client " + name);
+//		log.info("Registration client " + name);
 	}
 	
 	public void connectAgent(int idClient, Message msg) {
 		Runnable r = () -> {
 			Agent agent = getFreeAgent();
+		
+			msg.setIdReceiver(agent.getId());
 			listAgents.put(agent.getId(), agent);
 			Client client = listClients.get(idClient);
 			client.setIdAgent(agent.getId());
 			agent.setIdClient(client.getId());
 			agent.sendMessage(msg);
 			log.info("Starting conversation between agent " + agent.getName() + " and client " + client.getName() + ".");
+			log.info("... AGENT... idAgent " + agent.getId() + ", idClient " + agent.getIdClient());
+			log.info("... CLIENT... idClient " + client.getId() + ", idAgent " + client.getIdAgent());
 		};
 		execConnAgent.execute(r);
 	}
@@ -152,5 +182,9 @@ public class Chat {
 	
 	private void sendMessageError(Socket socket, Message msg) {
 		
+	}
+	
+	public boolean agentIsFree(int id) {
+		return !listAgents.containsKey(id);
 	}
 }

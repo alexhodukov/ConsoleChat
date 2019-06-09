@@ -25,7 +25,8 @@ public class Client {
 	public void sendMessage(Message msg) {
 		try {
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
-			bufOut.write(msg.getMessage());
+			System.out.println("Client.sendMessage msg " + msg.getMessage());
+			bufOut.write(msg.getMessageBytes());
 			bufOut.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -71,6 +72,13 @@ public class Client {
 	public void setIdAgent(int idAgent) {
 		this.idAgent = idAgent;
 	}
+
+	@Override
+	public String toString() {
+		return "Client [name=" + name + "]";
+	}
+	
+	
 
 	
 }

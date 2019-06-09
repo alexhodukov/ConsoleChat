@@ -1,5 +1,5 @@
 package com.client;
 
-public enum Type {
+public enum Role {
 	AGENT, CLIENT, GUEST;
 }

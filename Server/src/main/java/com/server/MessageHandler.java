@@ -1,7 +1,5 @@
 package com.server;
 
-import java.net.Socket;
-
 public class MessageHandler {	
 	private static final String WELCOME = "Please, register as agent or client: /register agent(client)";
 	private static final String REG_SUCCESS = "Registration successful!\n";
@@ -13,10 +11,23 @@ public class MessageHandler {
 	public MessageHandler() {
 	}
 	
-	public Message processMessage(int id, String src) {
-		Message msg = new Message();
+	public Message processMessage(String src) {
+		Message msg = new Message(src);
 
 		return msg;
+	}
+	
+	public void addNameSender(Message msg, String name) {
+		String s = msg.getMessage();
+		String[] tokens = s.split("_");
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append(tokens[0] + "_" + name);
+		
+		for (int i = 1; i < tokens.length; i++) {
+			builder.append("_" + tokens[i]);
+		}
+		msg.setMessage(builder.toString());
 	}
 	
 	public Message registerUser(int id, String src) {
@@ -37,8 +48,6 @@ public class MessageHandler {
 				
 			}
 			
-			System.out.println("body " + body);
-			
 			tokens = body.split(" ");			
 			if (tokens.length == 3 && REGISTER.equals(tokens[0])) {
 				switch (tokens[1]) {
@@ -47,7 +56,6 @@ public class MessageHandler {
 				} break;
 				case CLIENT : {
 					registerSuccess(msg, REG_SUCCESS, tokens[2], Role.CLIENT);
-					System.out.println("register client");
 				} break;
 				default : {
 					setErrorMessage(msg, UNSUP_COMMAND);
@@ -56,19 +64,25 @@ public class MessageHandler {
 			} else {
 				setErrorMessage(msg, UNSUP_COMMAND);
 			}
+			addHeaderRegistration(msg);
 		}
+		
 		
 		return msg;
 	}
 	
+	private void addHeaderRegistration(Message msg) {
+		msg.setMessage("REG_" + msg.getIdReceiver() + "_" + msg.getRoleReceiver() + "_" + msg.getMessage());
+	}
+	
 	private void registerSuccess(Message msg, String src, String name, Role role) {
-		msg.setSrc(src);
-		msg.setName(name);
-		msg.setRole(role);
+		msg.setMessage(src);
+		msg.setNameSender(name);
+		msg.setRoleReceiver(role);
 	}
 	
 	private void setErrorMessage(Message msg, String s) {
 		msg.setErrorMessage(true);
-		msg.setSrc(s);
+		msg.setMessage(s);
 	}
 }

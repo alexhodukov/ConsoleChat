@@ -20,14 +20,16 @@ public class ClientOutput implements Runnable {
 				String line = sc.nextLine();
 				
 				MessageHandler msgHd = new MessageHandler(line);
-				msgHd.processOutgoingMessage();
+				msgHd.processOutgoingMessage(manager.getId(), manager.getRole());
 				if (msgHd.isCorrectMessage()) {
 					try {
-						bufOut.write(msgHd.getMessage());
+						bufOut.write(msgHd.getMessageBytes());
 						bufOut.flush();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}	
+				} else {
+					System.out.println(msgHd.getMessage());
 				}
 				
 				if ("/exit".equals(line)) {

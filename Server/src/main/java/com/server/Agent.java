@@ -3,8 +3,10 @@ package com.server;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 public class Agent {
+	private static Logger log = Logger.getLogger(Agent.class.getName());
 	private int id;
 	private int idClient;
 	private Socket socket; 
@@ -19,8 +21,9 @@ public class Agent {
 	public void sendMessage(Message msg) {
 		try {	
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
-			bufOut.write(msg.getMessage());
+			bufOut.write(msg.getMessageBytes());
 			bufOut.flush();
+			log.info("Msg " + msg + "---------------- sent");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

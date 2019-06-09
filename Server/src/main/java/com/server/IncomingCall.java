@@ -34,16 +34,23 @@ public class IncomingCall implements Runnable {
 			
 			while (reader.hasNextLine()) {				
 				String line = reader.nextLine();
-				System.out.println("Line " + line);
-				if (role == Role.GUEST) {
+//				System.out.println("Line " + line);
+				
+				switch (role) {
+				case AGENT :
+				case CLIENT : {
+					server.getChat().processMessage(line, id, role);
+				} break;
+				case GUEST : {
 					Message msg = server.getMsgHandler().registerUser(id, line);
 					if (!msg.isErrorMessage()) {
-						role = msg.getRole();
+						role = msg.getRoleReceiver();
 						server.getChat().createUser(socket, msg);
 					}
-					server.getChat().registerMessage(msg);
-				} else {
-					
+					if (role == Role.CLIENT) {
+						server.getChat().registerMessage(msg);	
+					}
+				} break;
 				}
 				
 			}

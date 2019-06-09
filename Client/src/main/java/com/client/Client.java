@@ -10,12 +10,11 @@ import java.net.UnknownHostException;
 
 public class Client {
 
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) {		
 		try (Socket socket = new Socket("localhost", 8282);
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
 			BufferedInputStream bufIn = new BufferedInputStream(socket.getInputStream());
-			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))		) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 		
 			ManagerClient manager = new ManagerClient(socket);
 			Thread tInput = new Thread(new ClientInput(manager, bufIn, reader));

@@ -3,25 +3,29 @@ package com.server;
 import java.io.UnsupportedEncodingException;
 
 public class Message {
-	private String src;
+	private String message;
 	private int idReceiver;
-	private Role role;
-	private String name;
+	private Role roleReceiver;
+	private String nameSender;
 	private boolean isErrorMessage;
 	
-	public Message(String src) {
+	public Message(String msg) {
 		this();
-		this.src = src;
+		this.message = msg;
 	}
 	
 	public Message() {
-		this.role = Role.GUEST;
+		this.roleReceiver = Role.GUEST;
 	}
 	
-	public byte[] getMessage() {
+	public String getMessage() {
+		return message;
+	}
+	
+	public byte[] getMessageBytes() {
 		byte[] ar = {};
 		try {
-			ar = src.getBytes("UTF-8");
+			ar = message.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -44,31 +48,30 @@ public class Message {
 		this.isErrorMessage = isErrorMessage;
 	}
 
-	public void setSrc(String src) {
-		this.src = src;
+	public void setMessage(String msg) {
+		this.message = msg;
 	}
 
-	public Role getRole() {
-		return role;
+	public Role getRoleReceiver() {
+		return roleReceiver;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setRoleReceiver(Role roleReceiver) {
+		this.roleReceiver = roleReceiver;
 	}
 
-	public String getName() {
-		return name;
+	public String getNameSender() {
+		return nameSender;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setNameSender(String nameSender) {
+		this.nameSender = nameSender;
 	}
 
 	@Override
 	public String toString() {
-		return "Message [src=" + src + ", idReceiver=" + idReceiver + ", role=" + role + ", name=" + name
-				+ ", isErrorMessage=" + isErrorMessage + "]";
+		return "Message [src=" + message + ", idReceiver=" + idReceiver + ", roleReceiver=" + roleReceiver + ", nameSender="
+				+ nameSender + ", isErrorMessage=" + isErrorMessage + "]";
 	}
 
-	
 }
