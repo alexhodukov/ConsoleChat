@@ -20,9 +20,12 @@ public class ClientInput implements Runnable {
 		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
-				MessageHandler msgHd = new MessageHandler(line);
-				msgHd.processIncomingMessage(manager);
-				System.out.println(msgHd.getMessage());
+
+				MessageHandler msgHd = new MessageHandler(line, manager);
+				msgHd.processIncomingMessage();
+				if (msgHd.isNeedShowMessage()) {
+					System.out.println(msgHd.getMessage());
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

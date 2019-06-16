@@ -10,19 +10,14 @@ import java.util.logging.Logger;
 
 public class IncomingCall implements Runnable {
 	private static Logger log = Logger.getLogger(IncomingCall.class.getName());
-	private Server server;
-	private Role role;
-	private boolean done;
-	private boolean isExit;
-	private int id;
 	
 	private Socket socket;
+	private MessageHandler msgHandler;
+	private boolean isExit;
 	
-	public IncomingCall(Server server, Socket socket) {
-		this.server = server;
+	public IncomingCall(Socket socket, MessageHandler msgHandler) {
 		this.socket = socket;
-		this.role = Role.GUEST;
-		this.id = socket.getPort();
+		this.msgHandler = msgHandler;
 	}
 	
 	@Override
@@ -34,25 +29,8 @@ public class IncomingCall implements Runnable {
 			
 			while (reader.hasNextLine()) {				
 				String line = reader.nextLine();
-//				System.out.println("Line " + line);
-				
-				switch (role) {
-				case AGENT :
-				case CLIENT : {
-					server.getChat().processMessage(line, id, role);
-				} break;
-				case GUEST : {
-					Message msg = server.getMsgHandler().registerUser(id, line);
-					if (!msg.isErrorMessage()) {
-						role = msg.getRoleReceiver();
-						server.getChat().createUser(socket, msg);
-					}
-					if (role == Role.CLIENT) {
-						server.getChat().registerMessage(msg);	
-					}
-				} break;
-				}
-				
+//				System.out.println("Incoming line " + line);
+				msgHandler.processMessage(line, socket);
 			}
 			
 			waitThread();

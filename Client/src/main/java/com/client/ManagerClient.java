@@ -6,15 +6,24 @@ import java.net.Socket;
 public class ManagerClient {
 	private Socket socket;
 	private int id;
+	private int idChat;
+	private String name;
 	private Role role;
+	private Interlocutor interlocutor;
 	
 	public ManagerClient(Socket socket) {
 		this.socket = socket;
 		this.role = Role.GUEST;
+		this.interlocutor = new Interlocutor();
 	}
 	
-	public boolean isGuest() {
+	public synchronized boolean isGuest() {
 		return role == Role.GUEST;
+	}
+	
+	public void disconnectInterlucutor(String name) {
+		System.out.println("User " + name + " has left conversation.");
+		interlocutor.disconnect();
 	}
 	
 	public void terminateChat() {
@@ -28,20 +37,40 @@ public class ManagerClient {
 		}
 	}
 
-	public int getId() {
+	public synchronized int getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public synchronized void setId(int id) {
 		this.id = id;
 	}
 
-	public Role getRole() {
+	public synchronized Role getRole() {
 		return role;
 	}
 
-	public void setRole(Role role) {
+	public synchronized void setRole(Role role) {
 		this.role = role;
+	}
+
+	public synchronized int getIdChat() {
+		return idChat;
+	}
+
+	public synchronized void setIdChat(int idChat) {
+		this.idChat = idChat;
+	}
+
+	public synchronized String getName() {
+		return name;
+	}
+
+	public synchronized void  setName(String name) {
+		this.name = name;
+	}
+
+	public synchronized Interlocutor getInterlocutor() {
+		return interlocutor;
 	}
 	
 	

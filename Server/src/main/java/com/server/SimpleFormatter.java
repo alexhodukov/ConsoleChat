@@ -8,10 +8,17 @@ public class SimpleFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        return new Date(record.getMillis()) + " " +
-        		record.getSourceClassName() + "." +
-        		record.getSourceMethodName() + "()" +"\n" +
-        		"INFO: " + record.getMessage()+"\n";
+        return record.getSourceClassName() + "." +
+        		record.getSourceMethodName() + "()" +
+        		"INFO: " + record.getMessage()+"\n" + "\n";
     }
+    
+//    @Override
+//    public String format(LogRecord record) {
+//        return new Date(record.getMillis()) + " " +
+//        		record.getSourceClassName() + "." +
+//        		record.getSourceMethodName() + "()" +"\n" +
+//        		"INFO: " + record.getMessage()+"\n";
+//    }
 
 }

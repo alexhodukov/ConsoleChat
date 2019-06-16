@@ -5,7 +5,11 @@ import java.io.UnsupportedEncodingException;
 public class Message {
 	private String message;
 	private int idReceiver;
+	private int idSender;
+	private int idChat;
 	private Role roleReceiver;
+	private Role roleSender;
+	private String nameReceiver;
 	private String nameSender;
 	private boolean isErrorMessage;
 	
@@ -30,6 +34,14 @@ public class Message {
 			e.printStackTrace();
 		}
 		return ar;
+	}
+	
+//	public void createMessage() {
+//		message = "MSG_" + idReceiver + "_" + idSender + "_" + idChat + "_" + nameSender + "_" + message;
+//	}
+	
+	public void createRegisterMessage() {
+		message = "REG_" + message; 
 	}
 
 	public void setIdReceiver(int idReceiver) {
@@ -60,6 +72,14 @@ public class Message {
 		this.roleReceiver = roleReceiver;
 	}
 
+	public Role getRoleSender() {
+		return roleSender;
+	}
+
+	public void setRoleSender(Role roleSender) {
+		this.roleSender = roleSender;
+	}
+
 	public String getNameSender() {
 		return nameSender;
 	}
@@ -68,10 +88,37 @@ public class Message {
 		this.nameSender = nameSender;
 	}
 
+	public String getNameReceiver() {
+		return nameReceiver;
+	}
+
+	public void setNameReceiver(String nameReceiver) {
+		this.nameReceiver = nameReceiver;
+	}
+
+	public int getIdChat() {
+		return idChat;
+	}
+
+	public void setIdChat(int idChat) {
+		this.idChat = idChat;
+	}
+
+	public int getIdSender() {
+		return idSender;
+	}
+
+	public void setIdSender(int idSender) {
+		this.idSender = idSender;
+	}
+
 	@Override
 	public String toString() {
-		return "Message [src=" + message + ", idReceiver=" + idReceiver + ", roleReceiver=" + roleReceiver + ", nameSender="
-				+ nameSender + ", isErrorMessage=" + isErrorMessage + "]";
+		return "Message [message=" + message + ", idReceiver=" + idReceiver + ", idSender=" + idSender + ", idChat="
+				+ idChat + ", roleReceiver=" + roleReceiver + ", roleSender=" + roleSender + ", nameReceiver="
+				+ nameReceiver + ", nameSender=" + nameSender + "]";
 	}
+	
+	
 
 }

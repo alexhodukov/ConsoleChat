@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 public class Agent {
 	private static Logger log = Logger.getLogger(Agent.class.getName());
+	
 	private int id;
-	private int idClient;
 	private Socket socket; 
 	private String name;
 	
@@ -35,14 +35,6 @@ public class Agent {
 	
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public int getIdClient() {
-		return idClient;
-	}
-
-	public void setIdClient(int idClient) {
-		this.idClient = idClient;
 	}
 
 	public String getName() {

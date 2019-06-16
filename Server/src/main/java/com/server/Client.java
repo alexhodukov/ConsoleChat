@@ -2,18 +2,18 @@ package com.server;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Client {
+	private static Logger log = Logger.getLogger(Client.class.getName());
+	
 	private int id;
-	private int idAgent;
 	private Socket socket; 
 	private String name;
-	private Queue<String> listUnreadMsg;
+	private Queue<Message> listUnreadMsg;
 	
 	public Client(Socket socket, int id, String name) {
 		this.socket = socket;
@@ -25,9 +25,9 @@ public class Client {
 	public void sendMessage(Message msg) {
 		try {
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
-			System.out.println("Client.sendMessage msg " + msg.getMessage());
 			bufOut.write(msg.getMessageBytes());
 			bufOut.flush();
+			log.info("Msg " + msg + "---------------- sent");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -41,7 +41,7 @@ public class Client {
 		return name;
 	}
 
-	public Queue<String> getListUnreadMsg() {
+	public Queue<Message> getListUnreadMsg() {
 		return listUnreadMsg;
 	}
 	
@@ -49,11 +49,11 @@ public class Client {
 		return listUnreadMsg.isEmpty();
 	}
 	
-	public String nextUnreadMsg() {
+	public Message nextUnreadMsg() {
 		return listUnreadMsg.poll();
 	}
 	
-	public void addMsg(String msg) {
+	public void addMsg(Message msg) {
 		listUnreadMsg.add(msg);
 	}
 
@@ -63,14 +63,6 @@ public class Client {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public int getIdAgent() {
-		return idAgent;
-	}
-
-	public void setIdAgent(int idAgent) {
-		this.idAgent = idAgent;
 	}
 
 	@Override

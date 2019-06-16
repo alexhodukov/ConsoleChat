@@ -5,12 +5,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-	private Chat chat;
+	private ServiceManager manager;
 	private MessageHandler msgHandler;
 
 	public Server() {
-		this.msgHandler = new MessageHandler();
-		this.chat = new Chat(msgHandler);
+		this.manager = new ServiceManager();
+		this.msgHandler = new MessageHandler(manager);
 	}
 
 	public void start() {
@@ -18,14 +18,17 @@ public class Server {
 			System.out.println("Server started!");
 			
 			Runnable r = () -> {
-				chat.sendMessage();
+				while (true) {
+					manager.sendMessage();	
+				}
 			};
 			Thread sending = new Thread(r);
+			sending.setName("Thread sending");
 			sending.start();
 			
 			while (true) {
 				Socket incoming = s.accept();
-				Thread t = new Thread(new IncomingCall(this, incoming));
+				Thread t = new Thread(new IncomingCall(incoming, msgHandler));
 				t.start();
 			}
 		} catch (IOException e) {
@@ -33,8 +36,8 @@ public class Server {
 		}
 	}
 
-	public Chat getChat() {
-		return chat;
+	public ServiceManager getManager() {
+		return manager;
 	}
 
 	public MessageHandler getMsgHandler() {

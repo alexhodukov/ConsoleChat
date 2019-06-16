@@ -19,7 +19,7 @@ public class ClientOutput implements Runnable {
 			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
 				
-				MessageHandler msgHd = new MessageHandler(line);
+				MessageHandler msgHd = new MessageHandler(line, manager);
 				msgHd.processOutgoingMessage(manager.getId(), manager.getRole());
 				if (msgHd.isCorrectMessage()) {
 					try {
@@ -28,11 +28,12 @@ public class ClientOutput implements Runnable {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}	
+
 				} else {
 					System.out.println(msgHd.getMessage());
 				}
 				
-				if ("/exit".equals(line)) {
+				if ("/e".equals(line)) {
 					manager.terminateChat();
 				}
 			}	
