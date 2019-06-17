@@ -1,4 +1,4 @@
-package com.server;
+package com.chat.model;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

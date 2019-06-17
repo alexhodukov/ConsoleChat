@@ -1,15 +1,20 @@
-package com.server;
+package com.chat.handlers;
 
 import java.net.Socket;
 
+import com.chat.enums.MessageType;
+import com.chat.enums.Role;
+import com.chat.model.Message;
+import com.chat.services.ServiceManager;
+
 public class MessageHandler {	
-	private static final String WELCOME = "Please, register as agent or client: /register agent(client)" + "\n";
+//	private static final String WELCOME = "Please, register as agent or client: /register agent(client)" + "\n";
 	private static final String REG_SUCCESS = "Registration successful!" + "\n";
 	private static final String UNSUP_COMMAND = "Unsupported command, please, write the command correctly!" + "\n";
 	private static final String INCOR_MESSAGE = "Incorrect format message!" + "\n";
-	private static final String REGISTER = "/r";
-	private static final String AGENT = "a";
-	private static final String CLIENT = "c";
+//	private static final String REGISTER = "/r";
+//	private static final String AGENT = "a";
+//	private static final String CLIENT = "c";
 	
 	private ServiceManager manager;
 	

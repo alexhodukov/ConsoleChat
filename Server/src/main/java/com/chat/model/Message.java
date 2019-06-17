@@ -1,6 +1,8 @@
-package com.server;
+package com.chat.model;
 
 import java.io.UnsupportedEncodingException;
+
+import com.chat.enums.Role;
 
 public class Message {
 	private String message;

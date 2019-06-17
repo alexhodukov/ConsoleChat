@@ -1,4 +1,4 @@
-package com.server;
+package com.chat.model;
 
 public class Chat {
 	private int id;

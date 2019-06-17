@@ -1,4 +1,4 @@
-package com.server;
+package com.chat.handlers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,14 +8,14 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-public class IncomingCall implements Runnable {
-	private static Logger log = Logger.getLogger(IncomingCall.class.getName());
+public class IncomingSocketHandler implements Runnable {
+	private static Logger log = Logger.getLogger(IncomingSocketHandler.class.getName());
 	
 	private Socket socket;
 	private MessageHandler msgHandler;
 	private boolean isExit;
 	
-	public IncomingCall(Socket socket, MessageHandler msgHandler) {
+	public IncomingSocketHandler(Socket socket, MessageHandler msgHandler) {
 		this.socket = socket;
 		this.msgHandler = msgHandler;
 	}

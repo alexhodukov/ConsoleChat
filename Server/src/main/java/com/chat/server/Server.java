@@ -1,8 +1,12 @@
-package com.server;
+package com.chat.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import com.chat.handlers.IncomingSocketHandler;
+import com.chat.handlers.MessageHandler;
+import com.chat.services.ServiceManager;
 
 public class Server {
 	private ServiceManager manager;
@@ -28,7 +32,7 @@ public class Server {
 			
 			while (true) {
 				Socket incoming = s.accept();
-				Thread t = new Thread(new IncomingCall(incoming, msgHandler));
+				Thread t = new Thread(new IncomingSocketHandler(incoming, msgHandler));
 				t.start();
 			}
 		} catch (IOException e) {

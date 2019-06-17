@@ -1,4 +1,4 @@
-package com.server;
+package com.chat.services;
 
 import java.net.Socket;
 import java.util.HashMap;
@@ -9,6 +9,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
+
+import com.chat.enums.Role;
+import com.chat.model.Agent;
+import com.chat.model.Chat;
+import com.chat.model.Client;
+import com.chat.model.Message;
 
 public class ServiceManager {
 	private static Logger log = Logger.getLogger(ServiceManager.class.getName());
