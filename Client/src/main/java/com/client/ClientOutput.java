@@ -19,24 +19,27 @@ public class ClientOutput implements Runnable {
 			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
 				
-				MessageHandler msgHd = new MessageHandler(line, manager);
-				msgHd.processOutgoingMessage(manager.getId(), manager.getRole());
-				if (msgHd.isCorrectMessage()) {
-					try {
-						bufOut.write(msgHd.getMessageBytes());
-						bufOut.flush();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}	
+				if (!line.isEmpty()) {
+					MessageHandler msgHd = new MessageHandler(line, manager);
+					msgHd.processOutgoingMessage(manager.getId(), manager.getRole());
+					if (msgHd.isCorrectMessage()) {
+						try {
+							bufOut.write(msgHd.getMessageBytes());
+							bufOut.flush();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}	
 
-				} else {
-					System.out.println(msgHd.getMessage());
+					} else {
+						System.out.println(msgHd.getMessage());
+					}
+					
+					if ("/e".equals(line)) {
+						manager.terminateChat();
+					}
+	
 				}
-				
-				if ("/e".equals(line)) {
-					manager.terminateChat();
-				}
-			}	
+							}	
 		} 
 	}
 }

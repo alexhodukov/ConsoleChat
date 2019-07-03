@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2019-07-01T11:15:53</date>
+  <millis>1561968953540</millis>
+  <sequence>0</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerClient</method>
+  <thread>10</thread>
+  <message>Registration client Client [name=alex]</message>
+</record>
+<record>
+  <date>2019-07-01T11:15:53</date>
+  <millis>1561968953858</millis>
+  <sequence>1</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerMessage</method>
+  <thread>10</thread>
+  <message>Register message in queueREG_1_CLIENT_alex_1_Registration successful!
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:15:53</date>
+  <millis>1561968953858</millis>
+  <sequence>2</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>sending message REG_1_CLIENT_alex_1_Registration successful!
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:15:53</date>
+  <millis>1561968953860</millis>
+  <sequence>3</sequence>
+  <logger>com.chat.model.Client</logger>
+  <level>INFO</level>
+  <class>com.chat.model.Client</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>Msg Message [message=REG_1_CLIENT_alex_1_Registration successful!
+, idReceiver=1, idSender=0, idChat=1, roleReceiver=CLIENT, roleSender=null, nameReceiver=alex, nameSender=null]---------------- sent</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:01</date>
+  <millis>1561968961248</millis>
+  <sequence>4</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerAgent</method>
+  <thread>11</thread>
+  <message>Registration agent co</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:01</date>
+  <millis>1561968961248</millis>
+  <sequence>5</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerMessage</method>
+  <thread>11</thread>
+  <message>Register message in queueREG_1_AGENT_co_0_Registration successful!
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:01</date>
+  <millis>1561968961248</millis>
+  <sequence>6</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>doFreeAgent</method>
+  <thread>11</thread>
+  <message>Agent co is free.</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:01</date>
+  <millis>1561968961249</millis>
+  <sequence>7</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>sending message REG_1_AGENT_co_0_Registration successful!
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:01</date>
+  <millis>1561968961253</millis>
+  <sequence>8</sequence>
+  <logger>com.chat.model.Agent</logger>
+  <level>INFO</level>
+  <class>com.chat.model.Agent</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>Msg Message [message=REG_1_AGENT_co_0_Registration successful!
+, idReceiver=1, idSender=0, idChat=0, roleReceiver=AGENT, roleSender=null, nameReceiver=co, nameSender=null]---------------- sent</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:11</date>
+  <millis>1561968971552</millis>
+  <sequence>9</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerMessage</method>
+  <thread>10</thread>
+  <message>Register message in unread listMessagesMSG_1_0_1_alex_CLIENT_ku
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:11</date>
+  <millis>1561968971553</millis>
+  <sequence>10</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>lambda$0</method>
+  <thread>12</thread>
+  <message>Starting conversation between agent co and client alex.</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:11</date>
+  <millis>1561968971553</millis>
+  <sequence>11</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>lambda$0</method>
+  <thread>12</thread>
+  <message>Unread message MSG_1_0_1_alex_CLIENT_ku
+ ---- sending agent co</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:11</date>
+  <millis>1561968971554</millis>
+  <sequence>12</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerMessage</method>
+  <thread>12</thread>
+  <message>Register message in queueMSG_1_0_1_alex_CLIENT_ku
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:11</date>
+  <millis>1561968971554</millis>
+  <sequence>13</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>sending message MSG_1_0_1_alex_CLIENT_ku
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:11</date>
+  <millis>1561968971554</millis>
+  <sequence>14</sequence>
+  <logger>com.chat.model.Agent</logger>
+  <level>INFO</level>
+  <class>com.chat.model.Agent</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>Msg Message [message=MSG_1_0_1_alex_CLIENT_ku
+, idReceiver=1, idSender=1, idChat=1, roleReceiver=AGENT, roleSender=CLIENT, nameReceiver=null, nameSender=alex]---------------- sent</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:22</date>
+  <millis>1561968982810</millis>
+  <sequence>15</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>registerMessage</method>
+  <thread>11</thread>
+  <message>Register message in queueMSG_1_1_1_co_AGENT_sdfgfdg
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:22</date>
+  <millis>1561968982814</millis>
+  <sequence>16</sequence>
+  <logger>com.chat.services.ServiceManager</logger>
+  <level>INFO</level>
+  <class>com.chat.services.ServiceManager</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>sending message MSG_1_1_1_co_AGENT_sdfgfdg
+</message>
+</record>
+<record>
+  <date>2019-07-01T11:16:22</date>
+  <millis>1561968982815</millis>
+  <sequence>17</sequence>
+  <logger>com.chat.model.Client</logger>
+  <level>INFO</level>
+  <class>com.chat.model.Client</class>
+  <method>sendMessage</method>
+  <thread>9</thread>
+  <message>Msg Message [message=MSG_1_1_1_co_AGENT_sdfgfdg
+, idReceiver=1, idSender=1, idChat=1, roleReceiver=CLIENT, roleSender=AGENT, nameReceiver=null, nameSender=co]---------------- sent</message>
+</record>

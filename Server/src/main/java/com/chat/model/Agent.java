@@ -5,19 +5,41 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.logging.Logger;
 
+import com.chat.enums.CommunMethod;
+
 public class Agent {
 	private static Logger log = Logger.getLogger(Agent.class.getName());
 	
 	private int id;
 	private Socket socket; 
 	private String name;
+	private CommunMethod comMethod;
 	
 	public Agent(Socket socket, int id, String name) {
+		this(id, name);
 		this.socket = socket;
-		this.id = id;
-		this.name = name;
 	}
 	
+	public Agent(int id, String name) {
+		this.id = id;
+		this.name = name;
+		if (socket == null) {
+			this.comMethod = CommunMethod.WEB;
+		} else {
+			this.comMethod = CommunMethod.CONSOLE;	
+		}
+	}
+
+	public CommunMethod getComMethod() {
+		return comMethod;
+	}
+
+
+	public void setComMethod(CommunMethod comMethod) {
+		this.comMethod = comMethod;
+	}
+
+
 	public void sendMessage(Message msg) {
 		try {	
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());

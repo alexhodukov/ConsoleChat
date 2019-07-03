@@ -12,9 +12,6 @@ public class MessageHandler {
 	private static final String REG_SUCCESS = "Registration successful!" + "\n";
 	private static final String UNSUP_COMMAND = "Unsupported command, please, write the command correctly!" + "\n";
 	private static final String INCOR_MESSAGE = "Incorrect format message!" + "\n";
-//	private static final String REGISTER = "/r";
-//	private static final String AGENT = "a";
-//	private static final String CLIENT = "c";
 	
 	private ServiceManager manager;
 	
@@ -27,6 +24,7 @@ public class MessageHandler {
 		MessageType type = MessageType.valueOf(src.substring(0, 3));
 		msg.setMessage(msg.getMessage().substring(4, msg.getMessage().length()));
 		String[] tokens = msg.getMessage().split("_");
+		msg.setMsgType(type);
 		switch (type) {
 		case REG : {
 			registerUser(msg, socket);
@@ -90,7 +88,7 @@ public class MessageHandler {
 		}
 	}
 	
-	public Message registerUser(Message msg, Socket socket) {
+	public void registerUser(Message msg, Socket socket) {
 		String[] tokens = msg.getMessage().split("_");
 		if (tokens.length == 2) {
 			int id = 0;
@@ -119,8 +117,6 @@ public class MessageHandler {
 		} else {
 			setErrorMessage(msg, INCOR_MESSAGE);
 		}
-		
-		return msg;
 	}
 	
 	private void registerSuccess(Message msg, String src, String name, Role role) {

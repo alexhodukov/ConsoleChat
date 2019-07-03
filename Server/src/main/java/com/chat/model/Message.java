@@ -2,6 +2,7 @@ package com.chat.model;
 
 import java.io.UnsupportedEncodingException;
 
+import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 
 public class Message {
@@ -14,6 +15,7 @@ public class Message {
 	private String nameReceiver;
 	private String nameSender;
 	private boolean isErrorMessage;
+	private MessageType msgType;
 	
 	public Message(String msg) {
 		this();
@@ -22,6 +24,7 @@ public class Message {
 	
 	public Message() {
 		this.roleReceiver = Role.GUEST;
+		this.msgType = MessageType.MSG;
 	}
 	
 	public String getMessage() {
@@ -38,12 +41,21 @@ public class Message {
 		return ar;
 	}
 	
-//	public void createMessage() {
-//		message = "MSG_" + idReceiver + "_" + idSender + "_" + idChat + "_" + nameSender + "_" + message;
-//	}
+	public void convertToWeb() {
+		String[] tokens = message.split("_");
+		message = tokens[6];
+	}
 	
-	public void createRegisterMessage() {
-		message = "REG_" + message; 
+	public void convertToConsole() {
+		StringBuilder build = new StringBuilder();
+		build.append(msgType.toString() + "_")
+			.append(idReceiver + "_")
+			.append(roleReceiver + "_")
+			.append(nameReceiver + "_")
+			.append(idChat + "_")
+			.append(message + "\n");
+		
+		message = build.toString();
 	}
 
 	public void setIdReceiver(int idReceiver) {
@@ -112,6 +124,16 @@ public class Message {
 
 	public void setIdSender(int idSender) {
 		this.idSender = idSender;
+	}
+	
+	
+
+	public MessageType getMsgType() {
+		return msgType;
+	}
+
+	public void setMsgType(MessageType msgType) {
+		this.msgType = msgType;
 	}
 
 	@Override

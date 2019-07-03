@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
+import com.chat.enums.CommunMethod;
+
 public class Client {
 	private static Logger log = Logger.getLogger(Client.class.getName());
 	
@@ -14,14 +16,34 @@ public class Client {
 	private Socket socket; 
 	private String name;
 	private Queue<Message> listUnreadMsg;
+	private CommunMethod comMethod;
 	
 	public Client(Socket socket, int id, String name) {
+		this(id, name);
 		this.socket = socket;
+	}
+	
+	public Client(int id, String name) {
 		this.id = id;
 		this.name = name;
 		this.listUnreadMsg = new LinkedList<>();
+		if (socket == null) {
+			this.comMethod = CommunMethod.WEB;
+		} else {
+			this.comMethod = CommunMethod.CONSOLE;	
+		}
 	}
 	
+	
+	
+	public CommunMethod getComMethod() {
+		return comMethod;
+	}
+
+	public void setComMethod(CommunMethod comMethod) {
+		this.comMethod = comMethod;
+	}
+
 	public void sendMessage(Message msg) {
 		try {
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());

@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import com.chat.enums.CommunMethod;
 import com.chat.enums.Role;
 import com.chat.model.Agent;
 import com.chat.model.Chat;
@@ -28,6 +29,7 @@ public class ServiceManager {
 	private Queue<Message> listMessages;
 	private ExecutorService execMessage;
 	private ExecutorService execConnAgent;
+	private Map<Integer, Queue<Message>> listHttpMessages;
 	
 	public ServiceManager() {
 		this.listAgents = new HashMap<>();
@@ -40,6 +42,7 @@ public class ServiceManager {
 		this.incIdAgent = new AtomicInteger();
 		this.incIdClient = new AtomicInteger();
 		this.incIdChat = new AtomicInteger();
+		this.listHttpMessages = new HashMap<>();
 	}
 	
 	
@@ -50,9 +53,23 @@ public class ServiceManager {
 		return id;
 	}
 	
+	public int createHttpAgent(String name) {
+		int id = incIdAgent.incrementAndGet();
+		Agent agent = new Agent(id, name);
+		registerAgent(agent);
+		return id;
+	}
+	
 	public int createClient(Socket socket, String name) {
 		int id = incIdClient.incrementAndGet();
 		Client client = new Client(socket, id, name);
+		registerClient(client);
+		return id;
+	}
+	
+	public int createHttpClient(String name) {
+		int id = incIdClient.incrementAndGet();
+		Client client = new Client(id, name);
 		registerClient(client);
 		return id;
 	}
@@ -81,18 +98,72 @@ public class ServiceManager {
 	}
 	
 	public synchronized void registerMessage(Message msg) {
-		if (msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0) {
+		int idReceiver = msg.getIdReceiver();
+		Role roleSender = msg.getRoleSender();
+		if (roleSender == Role.CLIENT && idReceiver == 0) {
 			listClients.get(msg.getIdSender()).addMsg(msg);
 			log.info("Register message in unread listMessages" + msg.getMessage());
 		} else {
-			listMessages.add(msg);
-			log.info("Register message in queue" + msg.getMessage());
-			notifyAll();	
+			if ((roleSender == Role.CLIENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.WEB) ||
+				(roleSender == Role.AGENT && listClients.get(idReceiver).getComMethod() == CommunMethod.WEB)) {
+				if (listHttpMessages.containsKey(idReceiver)) {
+					listHttpMessages.get(idReceiver).add(msg);
+				} else {
+					Queue<Message> listMessages = new LinkedList<>();
+					listMessages.add(msg);
+					listHttpMessages.put(idReceiver, listMessages);
+				}
+				log.info("Register HTTP message in queue " + msg.getMessage() + ". idName " + msg.getNameSender());
+			} else {
+				listMessages.add(msg);
+				log.info("Register message in queue" + msg.getMessage());
+			}	
+			notifyAll();
 		}
+		
+	}
+	
+//	public synchronized void registerHttpMessage(Message msg) {
+//		int idReceiver = msg.getIdReceiver();
+//		if (msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0) {
+//			listClients.get(msg.getIdSender()).addMsg(msg);
+//			log.info("Register HTTP message in unread listMessages " + msg.getMessage() + ". idName " + msg.getNameSender());
+//		} else {
+//			if (listHttpMessages.containsKey(idReceiver)) {
+//				listHttpMessages.get(idReceiver).add(msg);
+//			} else {
+//				Queue<Message> listMessages = new LinkedList<>();
+//				listMessages.add(msg);
+//				listHttpMessages.put(idReceiver, listMessages);
+//			}
+//			log.info("Register HTTP message in queue " + msg.getMessage() + ". idName " + msg.getNameSender());
+//			notifyAll();	
+//		}
+//	}
+	
+	public synchronized Queue<String> getHttpMessage(int idReceiver) {
+		Queue<String> que = new LinkedList<>();
+		if (listHttpMessages.containsKey(idReceiver)) {
+			Queue<Message> listMsg = listHttpMessages.remove(idReceiver);
+			for (Message m : listMsg) {
+				que.add(m.getMessage());
+			}
+		} else {
+			try {
+				wait(4000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		return que;
 	}
 	
 	public int getIdAgentByIdChat(int idChat) {
 		return listChats.get(idChat).getIdAgent();
+	}
+	
+	public boolean isExistAgentInChat(int idChat) {
+		return listChats.get(idChat).getIdAgent() != 0;
 	}
 	
 	public int getIdAgentInChat(int idChat) {
@@ -110,18 +181,48 @@ public class ServiceManager {
 				
 				log.info("sending message " + msg.getMessage());
 				
-				int id = msg.getIdReceiver();
+				
+				int idReceiver = msg.getIdReceiver();
+				int idSender = msg.getIdSender();
 				switch (msg.getRoleReceiver()) {
 				case AGENT : {
-					Agent agent = listAgents.get(id);
+					Agent agent = listAgents.get(idReceiver);
 					if (agent != null) {
-						agent.sendMessage(msg);
+						Client client = listClients.get(idSender);
+						if (client != null) {
+							if (client.getComMethod() == CommunMethod.CONSOLE && agent.getComMethod() == CommunMethod.WEB) {
+								msg.convertToWeb();
+								
+							}
+							if (client.getComMethod() == CommunMethod.WEB && agent.getComMethod() == CommunMethod.CONSOLE) {
+								msg.convertToConsole();
+								agent.sendMessage(msg);
+							}
+							if (client.getComMethod() == agent.getComMethod()) {
+								agent.sendMessage(msg);
+							}
+							
+						}
+						
 					}
 				} break;
 				case CLIENT : {
-					Client client = listClients.get(id);
+					Client client = listClients.get(idReceiver);
 					if (client != null) {
-						client.sendMessage(msg);
+						Agent agent = listAgents.get(idSender);
+						if (agent != null) {
+							if (agent.getComMethod() == CommunMethod.CONSOLE && client.getComMethod() == CommunMethod.WEB) {
+								msg.convertToWeb();
+							}
+							if (agent.getComMethod() == CommunMethod.WEB && client.getComMethod() == CommunMethod.CONSOLE) {
+								msg.convertToConsole();
+								client.sendMessage(msg);
+							}
+							if (client.getComMethod() == agent.getComMethod()) {
+								client.sendMessage(msg);
+							}
+						}
+						
 					}
 				} break;
 				}
@@ -131,8 +232,6 @@ public class ServiceManager {
 			e.printStackTrace();
 		}
 	}
-	
-	
 	
 	public synchronized Agent getFreeAgent() {
 		try {

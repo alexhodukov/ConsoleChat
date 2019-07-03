@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.chat.handlers.HttpMessageHandler;
 import com.chat.handlers.IncomingSocketHandler;
 import com.chat.handlers.MessageHandler;
 import com.chat.services.ServiceManager;
@@ -11,10 +12,12 @@ import com.chat.services.ServiceManager;
 public class Server {
 	private ServiceManager manager;
 	private MessageHandler msgHandler;
+	private HttpMessageHandler httpMsgHandler;
 
 	public Server() {
 		this.manager = new ServiceManager();
 		this.msgHandler = new MessageHandler(manager);
+		this.httpMsgHandler = new HttpMessageHandler(manager);
 	}
 
 	public void start() {
@@ -46,6 +49,10 @@ public class Server {
 
 	public MessageHandler getMsgHandler() {
 		return msgHandler;
+	}
+
+	public HttpMessageHandler getHttpMsgHandler() {
+		return httpMsgHandler;
 	}
 	
 	

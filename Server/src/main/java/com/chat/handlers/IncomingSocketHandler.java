@@ -29,7 +29,6 @@ public class IncomingSocketHandler implements Runnable {
 			
 			while (reader.hasNextLine()) {				
 				String line = reader.nextLine();
-//				System.out.println("Incoming line " + line);
 				msgHandler.processMessage(line, socket);
 			}
 			
