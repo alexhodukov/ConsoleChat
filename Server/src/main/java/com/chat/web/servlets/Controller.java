@@ -54,29 +54,42 @@ public class Controller extends HttpServlet {
 		int idReceiver = (int) session.getAttribute("idReceiver");
 		int idChat = (int) session.getAttribute("idChat");
 		Role roleSender = (Role) session.getAttribute("role");
-		
-		
-		System.out.println("idChat " + idChat);
+
 		
 		if (roleSender == Role.CLIENT && idReceiver == 0 && httpMsgHandler.isExistAgentInChat(idChat)) {
 			idReceiver = httpMsgHandler.getIdAgentByIdChat(idChat);
 			session.setAttribute("idReceiver", idReceiver);
 		}
 		
-		if (idReceiver > 0) {
+		if ((roleSender == Role.CLIENT && idReceiver > 0) || roleSender == Role.AGENT) {
 			AsyncContext async = req.startAsync();
 			async.start(() -> {
 				PrintWriter out;
 				try {
+					
 					out = async.getResponse().getWriter();
-					List<String> listMsg = new ArrayList<>(httpMsgHandler.getMessages((int) session.getAttribute("idReceiver")));
+					List<Message> listMsg = new ArrayList<>(httpMsgHandler.getMessages(idSender));
+					List<String> listMsgStr = new ArrayList<>();
+					if (roleSender == Role.AGENT && (int) session.getAttribute("idReceiver") == 0) {
+						if (!listMsg.isEmpty()) {
+							Message msg = listMsg.get(0);
+							int idSend = msg.getIdSender();
+							int idCh = msg.getIdChat();
+							session.setAttribute("idReceiver", idSend);
+							session.setAttribute("idChat", idCh);
+						}
+					}
+					for (Message m : listMsg) {
+						listMsgStr.add(m.getMessage());
+					}
 					ObjectMapper map = new ObjectMapper();
-					String json = map.writeValueAsString(listMsg);
+					String json = map.writeValueAsString(listMsgStr);
 					out.write(json);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				async.complete();
+				System.out.println("End method async");
 			});	
 		}
 		

@@ -38,7 +38,7 @@ public class HttpMessageHandler {
 		return manager.createChat(idClient);
 	}
 	
-	public Collection<String> getMessage(int idReceiver) { 
+	public Collection<Message> getMessages(int idReceiver) { 
 		return manager.getHttpMessage(idReceiver);
 	}
 	

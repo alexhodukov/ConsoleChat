@@ -10,7 +10,9 @@
 		$(document).ready(function() {
 			
 			var isPolling = false;
-			$('#result1').html("${idReceiver}");
+			if ("${role}" == "AGENT") {
+				getMessage();
+			}
 			
 			function sendMessage(message) {
 				$.ajax({
@@ -39,6 +41,28 @@
 						$.each(data, function(key, value) {
 							console.log('key ' + key + ', value ' + value);
 						})
+					},
+					error: function (jqXHR, exception) {
+				        var msg = '';
+				        if (jqXHR.status === 0) {
+				            msg = 'Not connect.\n Verify Network.';
+				        } else if (jqXHR.status == 404) {
+				            msg = 'Requested page not found. [404]';
+				        } else if (jqXHR.status == 500) {
+				            msg = 'Internal Server Error [500].';
+				        } else if (exception === 'parsererror') {
+				            msg = 'Requested JSON parse failed.';
+				        } else if (exception === 'timeout') {
+				            msg = 'Time out error.';
+				        } else if (exception === 'abort') {
+				            msg = 'Ajax request aborted.';
+				        } else {
+				            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+				        }
+				        console.log(msg);
+				    },
+					complete: function() {
+						getMessages();
 					}
 				});
 			};

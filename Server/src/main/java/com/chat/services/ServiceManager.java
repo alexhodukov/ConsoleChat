@@ -100,12 +100,19 @@ public class ServiceManager {
 	public synchronized void registerMessage(Message msg) {
 		int idReceiver = msg.getIdReceiver();
 		Role roleSender = msg.getRoleSender();
+		
 		if (roleSender == Role.CLIENT && idReceiver == 0) {
 			listClients.get(msg.getIdSender()).addMsg(msg);
-			log.info("Register message in unread listMessages" + msg.getMessage());
+			log.info("Register message in unread listMessages " + msg.getMessage());
 		} else {
 			if ((roleSender == Role.CLIENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.WEB) ||
 				(roleSender == Role.AGENT && listClients.get(idReceiver).getComMethod() == CommunMethod.WEB)) {
+				
+				if ((roleSender == Role.CLIENT && listClients.get(idReceiver).getComMethod() == CommunMethod.CONSOLE) ||
+					(roleSender == Role.AGENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.CONSOLE)) {
+					msg.convertToWeb();
+				}
+				
 				if (listHttpMessages.containsKey(idReceiver)) {
 					listHttpMessages.get(idReceiver).add(msg);
 				} else {
@@ -113,8 +120,13 @@ public class ServiceManager {
 					listMessages.add(msg);
 					listHttpMessages.put(idReceiver, listMessages);
 				}
+				
 				log.info("Register HTTP message in queue " + msg.getMessage() + ". idName " + msg.getNameSender());
 			} else {
+				if ((roleSender == Role.CLIENT && listClients.get(idReceiver).getComMethod() == CommunMethod.WEB) ||
+					(roleSender == Role.AGENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.WEB)) {
+						msg.convertToConsole();
+					}
 				listMessages.add(msg);
 				log.info("Register message in queue" + msg.getMessage());
 			}	
@@ -123,31 +135,10 @@ public class ServiceManager {
 		
 	}
 	
-//	public synchronized void registerHttpMessage(Message msg) {
-//		int idReceiver = msg.getIdReceiver();
-//		if (msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0) {
-//			listClients.get(msg.getIdSender()).addMsg(msg);
-//			log.info("Register HTTP message in unread listMessages " + msg.getMessage() + ". idName " + msg.getNameSender());
-//		} else {
-//			if (listHttpMessages.containsKey(idReceiver)) {
-//				listHttpMessages.get(idReceiver).add(msg);
-//			} else {
-//				Queue<Message> listMessages = new LinkedList<>();
-//				listMessages.add(msg);
-//				listHttpMessages.put(idReceiver, listMessages);
-//			}
-//			log.info("Register HTTP message in queue " + msg.getMessage() + ". idName " + msg.getNameSender());
-//			notifyAll();	
-//		}
-//	}
-	
-	public synchronized Queue<String> getHttpMessage(int idReceiver) {
-		Queue<String> que = new LinkedList<>();
+	public synchronized Queue<Message> getHttpMessage(int idReceiver) {
+		Queue<Message> que = new LinkedList<>();
 		if (listHttpMessages.containsKey(idReceiver)) {
-			Queue<Message> listMsg = listHttpMessages.remove(idReceiver);
-			for (Message m : listMsg) {
-				que.add(m.getMessage());
-			}
+			que = listHttpMessages.remove(idReceiver);
 		} else {
 			try {
 				wait(4000);
@@ -188,41 +179,14 @@ public class ServiceManager {
 				case AGENT : {
 					Agent agent = listAgents.get(idReceiver);
 					if (agent != null) {
-						Client client = listClients.get(idSender);
-						if (client != null) {
-							if (client.getComMethod() == CommunMethod.CONSOLE && agent.getComMethod() == CommunMethod.WEB) {
-								msg.convertToWeb();
-								
-							}
-							if (client.getComMethod() == CommunMethod.WEB && agent.getComMethod() == CommunMethod.CONSOLE) {
-								msg.convertToConsole();
-								agent.sendMessage(msg);
-							}
-							if (client.getComMethod() == agent.getComMethod()) {
-								agent.sendMessage(msg);
-							}
-							
-						}
-						
+						agent.sendMessage(msg);
 					}
 				} break;
+				
 				case CLIENT : {
 					Client client = listClients.get(idReceiver);
 					if (client != null) {
-						Agent agent = listAgents.get(idSender);
-						if (agent != null) {
-							if (agent.getComMethod() == CommunMethod.CONSOLE && client.getComMethod() == CommunMethod.WEB) {
-								msg.convertToWeb();
-							}
-							if (agent.getComMethod() == CommunMethod.WEB && client.getComMethod() == CommunMethod.CONSOLE) {
-								msg.convertToConsole();
-								client.sendMessage(msg);
-							}
-							if (client.getComMethod() == agent.getComMethod()) {
-								client.sendMessage(msg);
-							}
-						}
-						
+						client.sendMessage(msg);
 					}
 				} break;
 				}
