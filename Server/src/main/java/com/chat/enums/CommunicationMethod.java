@@ -1,5 +1,5 @@
 package com.chat.enums;
 
-public enum CommunMethod {
+public enum CommunicationMethod {
 	CONSOLE, WEB;
 }
