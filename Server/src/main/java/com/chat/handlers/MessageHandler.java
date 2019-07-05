@@ -50,13 +50,13 @@ public class MessageHandler {
 			manager.registerMessage(msg);	
 		} break;
 		case LEV : {
-			msg.setNameSender(tokens[2]);
+			msg.setNameSender(tokens[3]);
 			int idReceiver = Integer.parseInt(tokens[1]);
 			msg.setIdReceiver(idReceiver);
 			int idSender = Integer.parseInt(tokens[0]);
-			Role roleSender = Role.valueOf(tokens[3]);
+			Role roleSender = Role.valueOf(tokens[4]);
 			msg.setRoleSender(roleSender);
-			int idChat = Integer.parseInt(tokens[4]);
+			int idChat = Integer.parseInt(tokens[2]);
 			if (roleSender == Role.CLIENT) {
 				msg.setRoleReceiver(Role.AGENT);
 			} else {
@@ -68,13 +68,13 @@ public class MessageHandler {
 			manager.leaveConversation(idSender, roleSender, idChat);
 		} break;
 		case EXT : {
-			msg.setNameSender(tokens[2]);
+			msg.setNameSender(tokens[3]);
 			int idReceiver = Integer.parseInt(tokens[1]);
 			msg.setIdReceiver(idReceiver);
 			int idSender = Integer.parseInt(tokens[0]);
-			Role roleSender = Role.valueOf(tokens[3]);
+			Role roleSender = Role.valueOf(tokens[4]);
 			msg.setRoleSender(roleSender);
-			int idChat = Integer.parseInt(tokens[4]);
+			int idChat = Integer.parseInt(tokens[2]);
 			if (roleSender == Role.CLIENT) {
 				msg.setRoleReceiver(Role.AGENT);
 			} else {
