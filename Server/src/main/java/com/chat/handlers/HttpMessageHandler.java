@@ -14,6 +14,7 @@ public class HttpMessageHandler {
 	}
 	
 	public void process(Message msg) {
+		msg.setRoleReceiver(msg.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
 		manager.registerMessage(msg);
 	}
 	
@@ -39,7 +40,7 @@ public class HttpMessageHandler {
 	}
 	
 	public Collection<Message> getMessages(int idReceiver) { 
-		return manager.getHttpMessage(idReceiver);
+		return manager.getHttpMessages(idReceiver);
 	}
 	
 	public boolean isAgentConnecting(int idChat) {

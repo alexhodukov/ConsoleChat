@@ -16,18 +16,18 @@ public class Agent {
 	private CommunMethod comMethod;
 	
 	public Agent(Socket socket, int id, String name) {
-		this(id, name);
-		this.socket = socket;
-	}
-	
-	public Agent(int id, String name) {
 		this.id = id;
 		this.name = name;
+		this.socket = socket;
 		if (socket == null) {
 			this.comMethod = CommunMethod.WEB;
 		} else {
 			this.comMethod = CommunMethod.CONSOLE;	
 		}
+	}
+	
+	public Agent(int id, String name) {
+		this(null, id, name);
 	}
 
 	public CommunMethod getComMethod() {

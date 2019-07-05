@@ -33,6 +33,16 @@
 		<url-pattern>/chat</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>FirstJsp</servlet-name>
+		<jsp-file>/FirstJsp.jsp</jsp-file>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>FirstJsp</servlet-name>
+		<url-pattern>/f-jsp</url-pattern>
+	</servlet-mapping>
+	
 	<listener>  
     <listener-class>
         com.chat.web.listeners.ServerListener

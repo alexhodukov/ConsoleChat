@@ -1,6 +1,6 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -9,23 +9,13 @@
 
 		$(document).ready(function() {
 			
+			var isFirstMsg = true;
 			var isPolling = false;
+			var idReceiver = 0;
+			
 			if ("${role}" == "AGENT") {
-				getMessage();
+				getMessages();
 			}
-			
-			function sendMessage(message) {
-				$.ajax({
-					type: 'POST',
-					url: 'chat',
-					data: {message: message
-						},
-					success: function() {
-						console.log("success sendMessage()");
-					}
-				});
-			}
-			
 			
 			function getMessages(){
 			    $.ajax({ 
@@ -39,7 +29,11 @@
 // 					timeout: 4000,
 					success: function(data){
 						$.each(data, function(key, value) {
-							console.log('key ' + key + ', value ' + value);
+							if (idReceiver == 0) {
+								idReceiver = value.idSender;
+							}
+							addMessageChat(value.nameSender + " : " + value.message);
+							console.log('key ' + key + ', value ' + value.message);
 						})
 					},
 					error: function (jqXHR, exception) {
@@ -67,23 +61,39 @@
 				});
 			};
 			
+			function sendMessage(message) {
+				$.ajax({
+					type: 'POST',
+					url: 'chat',
+					data: {message: message
+						},
+					success: function() {
+						console.log("success sendMessage()");
+						if ("${role}" == "CLIENT" && isFirstMsg) {
+							isFirstMsg = false;
+							getMessages();
+						}
+					}
+				});
+			}
+			
 			
 			$('#send').click(function() {
 				var message = $('#message').val();
-				var chat = $('#chat');
-				
-				if ("${role}" == "AGENT" && "${idReceiver}" < 1) {
+				if ("${role}" == "AGENT" && idReceiver < 1) {
 					console.log("You haven't a client for discussion!");
 				} else {
-					chat.val(chat.val() + message + "\n");
-					chat.scrollTop(chat.prop('scrollHeight') - chat.height());
+					addMessageChat("I am : " + message);
 					sendMessage(message);
-					getMessages();
 				}
-	
-				isPolling = true;
-// 				getMessages();
 			});
+			
+			function addMessageChat(message) {
+				var chat = $('#chat');
+				chat.val(chat.val() + message + "\n");
+				chat.scrollTop(chat.prop('scrollHeight') - chat.height());
+			}
+			
 		});
 		
 	</script>
@@ -98,7 +108,7 @@
 
 	<form action="register" method="post">
 		<p>
-		<textarea id="chat" rows="3" cols="100" readonly></textarea>
+		<textarea id="chat" rows="20" cols="100" readonly></textarea>
 		</p>
 
 	    <p>

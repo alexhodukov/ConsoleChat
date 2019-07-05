@@ -49,10 +49,11 @@ public class Message {
 	public void convertToConsole() {
 		StringBuilder build = new StringBuilder();
 		build.append(msgType.toString() + "_")
+			.append(idSender + "_")
 			.append(idReceiver + "_")
-			.append(roleReceiver + "_")
-			.append(nameReceiver + "_")
 			.append(idChat + "_")
+			.append(nameSender + "_")
+			.append(roleSender.toString() + "_")
 			.append(message + "\n");
 		
 		message = build.toString();

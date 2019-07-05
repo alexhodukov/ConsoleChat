@@ -15,7 +15,7 @@ public class ServerListener implements ServletContextListener {
 			server.start();
 		};
 		Thread t = new Thread(r);
-//		t.start();
+		t.start();
 		
 	}
 	

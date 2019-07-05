@@ -20,7 +20,7 @@ public class ClientInput implements Runnable {
 		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
-
+				System.out.println("line " + line);
 				MessageHandler msgHd = new MessageHandler(line, manager);
 				msgHd.processIncomingMessage();
 				if (msgHd.isNeedShowMessage()) {

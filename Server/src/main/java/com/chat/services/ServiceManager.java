@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -39,7 +41,7 @@ public class ServiceManager {
 		this.listMessages = new LinkedList<>();
 		this.execMessage = Executors.newFixedThreadPool(5);
 		this.execConnAgent = Executors.newCachedThreadPool();
-		this.incIdAgent = new AtomicInteger();
+		this.incIdAgent = new AtomicInteger(10);
 		this.incIdClient = new AtomicInteger();
 		this.incIdChat = new AtomicInteger();
 		this.listHttpMessages = new HashMap<>();
@@ -99,7 +101,10 @@ public class ServiceManager {
 	
 	public synchronized void registerMessage(Message msg) {
 		int idReceiver = msg.getIdReceiver();
+		int idSender = msg.getIdSender();
 		Role roleSender = msg.getRoleSender();
+		
+		System.out.println("IN method registerMsg. idReceiver " + idReceiver + ", idSender " + idSender + ", roleSender " + roleSender);
 		
 		if (roleSender == Role.CLIENT && idReceiver == 0) {
 			listClients.get(msg.getIdSender()).addMsg(msg);
@@ -108,8 +113,10 @@ public class ServiceManager {
 			if ((roleSender == Role.CLIENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.WEB) ||
 				(roleSender == Role.AGENT && listClients.get(idReceiver).getComMethod() == CommunMethod.WEB)) {
 				
-				if ((roleSender == Role.CLIENT && listClients.get(idReceiver).getComMethod() == CommunMethod.CONSOLE) ||
-					(roleSender == Role.AGENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.CONSOLE)) {
+				System.out.println("Register message in Http List");
+				
+				if ((roleSender == Role.CLIENT && listClients.get(idSender).getComMethod() == CommunMethod.CONSOLE) ||
+					(roleSender == Role.AGENT && listAgents.get(idSender).getComMethod() == CommunMethod.CONSOLE)) {
 					msg.convertToWeb();
 				}
 				
@@ -123,10 +130,15 @@ public class ServiceManager {
 				
 				log.info("Register HTTP message in queue " + msg.getMessage() + ". idName " + msg.getNameSender());
 			} else {
-				if ((roleSender == Role.CLIENT && listClients.get(idReceiver).getComMethod() == CommunMethod.WEB) ||
-					(roleSender == Role.AGENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.WEB)) {
+				if ((roleSender == Role.CLIENT && listClients.get(idSender).getComMethod() == CommunMethod.WEB) ||
+					(roleSender == Role.AGENT && listAgents.get(idSender).getComMethod() == CommunMethod.WEB)) {
 						msg.convertToConsole();
+						System.out.println("AFter convertToConsole " + msg.getMessage());
 					}
+				if (roleSender == Role.CLIENT ) {
+					System.out.println("CommunMethod in client " + listClients.get(idSender).getComMethod());
+				}
+				System.out.println("Register message in Console List");
 				listMessages.add(msg);
 				log.info("Register message in queue" + msg.getMessage());
 			}	
@@ -135,13 +147,14 @@ public class ServiceManager {
 		
 	}
 	
-	public synchronized Queue<Message> getHttpMessage(int idReceiver) {
+	public synchronized Queue<Message> getHttpMessages(int idReceiver) {
 		Queue<Message> que = new LinkedList<>();
 		if (listHttpMessages.containsKey(idReceiver)) {
 			que = listHttpMessages.remove(idReceiver);
+			System.out.println("ServiceManger.getHttpMessages. que " + que.toString());
 		} else {
 			try {
-				wait(4000);
+				wait(20000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -234,12 +247,14 @@ public class ServiceManager {
 			while (!client.isEmptyListMsg()) {
 				Message m = client.nextUnreadMsg();
 				m.setIdReceiver(agent.getId());
-				log.info("Unread message " + m.getMessage() + " ---- sending agent " + listAgents.get(agent.getId()).getName());
+				log.info("Unread message " + m.getMessage() + " will be registered in the general heap. IdAgent " + listAgents.get(agent.getId()).getName());
 				registerMessage(m);
 			}
 			
 		};
-		execConnAgent.execute(r);
+		Thread t = new Thread(r);
+		t.setDaemon(true);
+		execConnAgent.execute(t);
 	}
 	
 	public void getUnreadMessag(int idChat) {

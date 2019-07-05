@@ -19,19 +19,19 @@ public class Client {
 	private CommunMethod comMethod;
 	
 	public Client(Socket socket, int id, String name) {
-		this(id, name);
-		this.socket = socket;
-	}
-	
-	public Client(int id, String name) {
 		this.id = id;
 		this.name = name;
 		this.listUnreadMsg = new LinkedList<>();
+		this.socket = socket;
 		if (socket == null) {
 			this.comMethod = CommunMethod.WEB;
 		} else {
 			this.comMethod = CommunMethod.CONSOLE;	
 		}
+	}
+	
+	public Client(int id, String name) {
+		this(null, id, name);
 	}
 	
 	
