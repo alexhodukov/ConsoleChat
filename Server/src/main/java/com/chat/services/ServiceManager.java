@@ -221,7 +221,7 @@ public class ServiceManager {
 				 agent = getFreeAgent();
 			}
 			
-			Message msgAgentFount = MessageUtils.createMessageClientWhenWaiting(msg, MessageUtils.AGENT_FOUND);
+			Message msgAgentFount = MessageUtils.createMessageClientWhenWaiting(msg, agent.getName() + " " + MessageUtils.AGENT_FOUND);
 			registerMessage(msgAgentFount);
 			
 			int idChat = msg.getIdChat();

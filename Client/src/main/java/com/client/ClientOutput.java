@@ -24,13 +24,11 @@ public class ClientOutput implements Runnable {
 					msgHd.processOutgoingMessage(manager.getId(), manager.getRole());
 					if (msgHd.isCorrectMessage()) {
 						try {
-							System.out.println("output " + msgHd.getMessage());
 							bufOut.write(msgHd.getMessageBytes());
 							bufOut.flush();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}	
-
 					} else {
 						System.out.println(msgHd.getMessage());
 					}

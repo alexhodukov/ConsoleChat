@@ -87,10 +87,12 @@ public class MessageHandler {
 			switch (message) {
 			case LEAVE : {
 				createLeaveMessage();
+				manager.disconnectInterlucutor();
 			} break;
 			
 			case EXIT : {
 				createExitMessage();
+				manager.disconnectInterlucutor();
 			} break;
 			
 			default : {
