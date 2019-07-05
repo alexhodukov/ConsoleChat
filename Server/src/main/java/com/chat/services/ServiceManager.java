@@ -5,19 +5,19 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-import com.chat.enums.CommunMethod;
+import com.chat.enums.CommunicationMethod;
+import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 import com.chat.model.Agent;
 import com.chat.model.Chat;
 import com.chat.model.Client;
 import com.chat.model.Message;
+import com.chat.utils.MessageUtils;
 
 public class ServiceManager {
 	private static Logger log = Logger.getLogger(ServiceManager.class.getName());
@@ -29,7 +29,6 @@ public class ServiceManager {
 	private Map<Integer, Client> listClients;
 	private Map<Integer, Chat> listChats;
 	private Queue<Message> listMessages;
-	private ExecutorService execMessage;
 	private ExecutorService execConnAgent;
 	private Map<Integer, Queue<Message>> listHttpMessages;
 	
@@ -39,7 +38,6 @@ public class ServiceManager {
 		this.listClients = new HashMap<>();
 		this.listChats = new HashMap<>();
 		this.listMessages = new LinkedList<>();
-		this.execMessage = Executors.newFixedThreadPool(5);
 		this.execConnAgent = Executors.newCachedThreadPool();
 		this.incIdAgent = new AtomicInteger(10);
 		this.incIdClient = new AtomicInteger();
@@ -83,7 +81,7 @@ public class ServiceManager {
 		return idChat;
 	}
 	
-	public synchronized void registerAgent(Agent agent) {
+	private synchronized void registerAgent(Agent agent) {
 		listAgents.put(agent.getId(), agent);
 		log.info("Registration agent " + agent);
 	}
@@ -94,7 +92,7 @@ public class ServiceManager {
 		notifyAll();
 	}
 	
-	public synchronized void registerClient(Client client) {
+	private synchronized void registerClient(Client client) {
 		listClients.put(client.getId(), client);
 		log.info("Registration client " + client);
 	}
@@ -103,22 +101,13 @@ public class ServiceManager {
 		int idReceiver = msg.getIdReceiver();
 		int idSender = msg.getIdSender();
 		Role roleSender = msg.getRoleSender();
-		
-		System.out.println("IN method registerMsg. idReceiver " + idReceiver + ", idSender " + idSender + ", roleSender " + roleSender);
+		Role roleReceiver = msg.getRoleReceiver();
 		
 		if (roleSender == Role.CLIENT && idReceiver == 0) {
 			listClients.get(msg.getIdSender()).addMsg(msg);
 			log.info("Register message in unread listMessages " + msg.getMessage());
 		} else {
-			if ((roleSender == Role.CLIENT && listAgents.get(idReceiver).getComMethod() == CommunMethod.WEB) ||
-				(roleSender == Role.AGENT && listClients.get(idReceiver).getComMethod() == CommunMethod.WEB)) {
-				
-				System.out.println("Register message in Http List");
-				
-				if ((roleSender == Role.CLIENT && listClients.get(idSender).getComMethod() == CommunMethod.CONSOLE) ||
-					(roleSender == Role.AGENT && listAgents.get(idSender).getComMethod() == CommunMethod.CONSOLE)) {
-					msg.convertToWeb();
-				}
+			if (isEqualsCommunicationMethod(msg.getMsgType(), roleReceiver, idReceiver, CommunicationMethod.WEB)) {
 				
 				if (listHttpMessages.containsKey(idReceiver)) {
 					listHttpMessages.get(idReceiver).add(msg);
@@ -127,31 +116,27 @@ public class ServiceManager {
 					listMessages.add(msg);
 					listHttpMessages.put(idReceiver, listMessages);
 				}
+				log.info("Register message in HTTP list " + msg.getMessage());
 				
-				log.info("Register HTTP message in queue " + msg.getMessage() + ". idName " + msg.getNameSender());
 			} else {
-				if ((roleSender == Role.CLIENT && listClients.get(idSender).getComMethod() == CommunMethod.WEB) ||
-					(roleSender == Role.AGENT && listAgents.get(idSender).getComMethod() == CommunMethod.WEB)) {
-						msg.convertToConsole();
-						System.out.println("AFter convertToConsole " + msg.getMessage());
-					}
-				if (roleSender == Role.CLIENT ) {
-					System.out.println("CommunMethod in client " + listClients.get(idSender).getComMethod());
-				}
-				System.out.println("Register message in Console List");
 				listMessages.add(msg);
-				log.info("Register message in queue" + msg.getMessage());
+				log.info("Register message in CONSOLE list " + msg.getMessage());
 			}	
 			notifyAll();
 		}
 		
 	}
 	
+	private boolean isEqualsCommunicationMethod(MessageType msgType, Role roleReceiver, int idReceiver, CommunicationMethod method) {
+		
+		return 	(roleReceiver == Role.AGENT && listAgents.get(idReceiver).getComMethod() == method) ||
+				(roleReceiver == Role.CLIENT && listClients.get(idReceiver).getComMethod() == method);
+	}
+	
 	public synchronized Queue<Message> getHttpMessages(int idReceiver) {
 		Queue<Message> que = new LinkedList<>();
 		if (listHttpMessages.containsKey(idReceiver)) {
 			que = listHttpMessages.remove(idReceiver);
-			System.out.println("ServiceManger.getHttpMessages. que " + que.toString());
 		} else {
 			try {
 				wait(20000);
@@ -183,8 +168,7 @@ public class ServiceManager {
 			if (!listMessages.isEmpty()) {
 				Message msg = listMessages.poll();
 				
-				log.info("sending message " + msg.getMessage());
-				
+				log.info("Attempt send message " + msg.getMessage());
 				
 				int idReceiver = msg.getIdReceiver();
 				int idSender = msg.getIdSender();
@@ -210,7 +194,15 @@ public class ServiceManager {
 		}
 	}
 	
-	public synchronized Agent getFreeAgent() {
+	public synchronized boolean isExistFreeAgents() {
+		return freeAgents.size() > 0;
+	}
+	
+	public boolean isAgentConnecting(int idChat) {
+		return listChats.get(idChat).isAgentConnecting();
+	}
+	
+	private synchronized Agent getFreeAgent() {
 		try {
 			while (!isExistFreeAgents()) {
 				wait();	
@@ -221,14 +213,6 @@ public class ServiceManager {
 		return listAgents.get(freeAgents.poll());
 	}
 	
-	public synchronized boolean isExistFreeAgents() {
-		return freeAgents.size() > 0;
-	}
-	
-	public boolean isAgentConnecting(int idChat) {
-		return listChats.get(idChat).isAgentConnecting();
-	}
-	
 	public void connectAgent(Message msg) {
 		listChats.get(msg.getIdChat()).setAgentConnecting(true);
 		Runnable r = () -> {
@@ -237,34 +221,30 @@ public class ServiceManager {
 				 agent = getFreeAgent();
 			}
 			
+			Message msgAgentFount = MessageUtils.createMessageClientWhenWaiting(msg, MessageUtils.AGENT_FOUND);
+			registerMessage(msgAgentFount);
+			
 			int idChat = msg.getIdChat();
 			listChats.get(idChat).setIdAgent(agent.getId());
 			listChats.get(idChat).setAgentConnecting(false);
 			
 			log.info("Starting conversation between agent " + agent.getName() + " and client " + msg.getNameSender() + ".");
 			
-			Client client = listClients.get(listChats.get(idChat).getIdClient());
-			while (!client.isEmptyListMsg()) {
-				Message m = client.nextUnreadMsg();
-				m.setIdReceiver(agent.getId());
-				log.info("Unread message " + m.getMessage() + " will be registered in the general heap. IdAgent " + listAgents.get(agent.getId()).getName());
-				registerMessage(m);
-			}
-			
+			getUnreadMessages(idChat, agent);			
 		};
+		
 		Thread t = new Thread(r);
-		t.setDaemon(true);
+		t.setName("Thread connection to agent from " + msg.getNameSender());
 		execConnAgent.execute(t);
 	}
 	
-	public void getUnreadMessag(int idChat) {
-		int idClient = listChats.get(idChat).getIdClient();
-		int idAgent = listChats.get(idChat).getIdAgent();
-		Client client = listClients.get(idClient);
+	private void getUnreadMessages(int idChat, Agent agent) {
+		Client client = listClients.get(listChats.get(idChat).getIdClient());
 		while (!client.isEmptyListMsg()) {
 			Message m = client.nextUnreadMsg();
+			m.setIdReceiver(agent.getId());
+			log.info("Unread message " + m.getMessage() + " will be registered in the general heap. Name " + listAgents.get(agent.getId()).getName());
 			registerMessage(m);
-			log.info("Unread message " + m + " ---- sent agent " + listAgents.get(idAgent).getName());
 		}
 	}
 	
@@ -289,10 +269,6 @@ public class ServiceManager {
 			int idAgent = listChats.get(idChat).getIdAgent();
 			doFreeAgent(listAgents.get(idAgent).getId());
 		}
-		
-	}
-	
-	private void sendMessageError(Socket socket, Message msg) {
 		
 	}
 	

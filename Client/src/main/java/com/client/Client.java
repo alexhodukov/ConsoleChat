@@ -17,7 +17,7 @@ public class Client {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 		
 			ManagerClient manager = new ManagerClient(socket);
-			Thread tInput = new Thread(new ClientInput(manager, bufIn, reader));
+			Thread tInput = new Thread(new ClientInput(manager, reader));
 			tInput.start();
 			Thread tOutput = new Thread(new ClientOutput(manager, bufOut));
 			tOutput.start();

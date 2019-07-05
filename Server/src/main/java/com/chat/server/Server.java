@@ -30,12 +30,13 @@ public class Server {
 				}
 			};
 			Thread sending = new Thread(r);
-			sending.setName("Thread sending");
+			sending.setName("Thread sending messages.");
 			sending.start();
 			
 			while (true) {
 				Socket incoming = s.accept();
 				Thread t = new Thread(new IncomingSocketHandler(incoming, msgHandler));
+				t.setName("Thread server incoming socket");
 				t.start();
 			}
 		} catch (IOException e) {

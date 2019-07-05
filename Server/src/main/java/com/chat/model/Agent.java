@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.logging.Logger;
 
-import com.chat.enums.CommunMethod;
+import com.chat.enums.CommunicationMethod;
 
 public class Agent {
 	private static Logger log = Logger.getLogger(Agent.class.getName());
@@ -13,16 +13,16 @@ public class Agent {
 	private int id;
 	private Socket socket; 
 	private String name;
-	private CommunMethod comMethod;
+	private CommunicationMethod comMethod;
 	
 	public Agent(Socket socket, int id, String name) {
 		this.id = id;
 		this.name = name;
 		this.socket = socket;
 		if (socket == null) {
-			this.comMethod = CommunMethod.WEB;
+			this.comMethod = CommunicationMethod.WEB;
 		} else {
-			this.comMethod = CommunMethod.CONSOLE;	
+			this.comMethod = CommunicationMethod.CONSOLE;	
 		}
 	}
 	
@@ -30,22 +30,29 @@ public class Agent {
 		this(null, id, name);
 	}
 
-	public CommunMethod getComMethod() {
+	public CommunicationMethod getComMethod() {
 		return comMethod;
 	}
 
 
-	public void setComMethod(CommunMethod comMethod) {
+	public void setComMethod(CommunicationMethod comMethod) {
 		this.comMethod = comMethod;
 	}
 
 
 	public void sendMessage(Message msg) {
 		try {	
+			if (msg.getComMethod() == CommunicationMethod.CONSOLE && comMethod == CommunicationMethod.WEB) {
+				msg.convertToWeb();
+			}
+			if (msg.getComMethod() == CommunicationMethod.WEB && comMethod == CommunicationMethod.CONSOLE) {
+				msg.convertToConsole();
+			}
+			
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
 			bufOut.write(msg.getMessageBytes());
 			bufOut.flush();
-			log.info("Msg " + msg + "---------------- sent");
+			log.info("Message " + msg + " sent to agent, id " + id + ", name " + name);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

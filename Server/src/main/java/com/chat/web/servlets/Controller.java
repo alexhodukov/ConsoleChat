@@ -100,6 +100,7 @@ public class Controller extends HttpServlet {
 				async.complete();
 			};
 			Thread t = new Thread(r);
+			t.setName("Thread async servlet");
 			t.setDaemon(true);
 			async.start(t);
 		} else {

@@ -9,6 +9,8 @@ public class MessageHandler {
 	private static final String CLIENT = "c";
 	private static final String EXIT = "/e";
 	private static final String LEAVE = "/l";
+	private static final String LEAVE_CHAT = "has left this chat";
+	private static final String NO_INTERLOCUTOR = "You haven't a client for discussion. Your message isn't sent!";
 	
 	private ManagerClient manager;
 	private String message;
@@ -27,14 +29,13 @@ public class MessageHandler {
 		String[] tokens = message.split("_");
 		switch (type) {
 		case REG : {
-			if (tokens.length == 5) {
-				manager.setId(Integer.parseInt(tokens[0]));
-				manager.setRole(Role.valueOf(tokens[1]));
-				manager.setName(tokens[2]);
-				manager.setIdChat(Integer.parseInt(tokens[3]));
-				message = tokens[4];
-			}
+			manager.setId(Integer.parseInt(tokens[1]));
+			manager.setIdChat(Integer.parseInt(tokens[2]));
+			manager.setName(tokens[3]);
+			manager.setRole(Role.valueOf(tokens[4]));
+			message = tokens[5];
 		} break;
+		
 		case MSG : {
 			if (manager.getInterlocutor().getId() == 0) {
 				manager.getInterlocutor().setId(Integer.parseInt(tokens[0]));
@@ -42,18 +43,23 @@ public class MessageHandler {
 				manager.getInterlocutor().setName((tokens[3]));
 				manager.getInterlocutor().setRole((Role.valueOf(tokens[4])));
 			}
+			
 			message = manager.getInterlocutor().getName() + " : " + tokens[5];
 		} break;
-		case SRV : {
-			String name = tokens[0];
-			Role role = Role.valueOf(tokens[1]);
-			String msg = tokens[2];
+		
+		case LEV : 
+		case EXT : {
+			Role role = Role.valueOf(tokens[4]);
+			message = tokens[5];
 			
 			if (role == Role.CLIENT) {
 				manager.setIdChat(0);	
 			}
-			manager.disconnectInterlucutor(name);
-			isNeedShowMessage = false;
+			manager.disconnectInterlucutor();
+		} break;
+		
+		case SRV : {
+			message = tokens[5];
 		} break;
 		}
 	}
@@ -63,49 +69,66 @@ public class MessageHandler {
 		if (role == Role.GUEST) {
 			String[] tokens = message.split(" ");			
 			if (tokens.length == 3 && REGISTER.equals(tokens[0]) && (AGENT.equals(tokens[1]) || CLIENT.equals(tokens[1]))) {
+				manager.setName(tokens[2]);
 				if (AGENT.equals(tokens[1])) {
-					createRegistrationMessage(Role.AGENT, tokens[2]);
+					manager.setRole(Role.AGENT);
+					createRegistrationMessage();
 				}
 				if (CLIENT.equals(tokens[1])) {
-					createRegistrationMessage(Role.CLIENT, tokens[2]);
+					manager.setRole(Role.CLIENT);
+					createRegistrationMessage();
 				}
 				
 			} else {
 				setErrorMessage(UNSUP_COMMAND);
 			}
 		} else {
+			
 			switch (message) {
 			case LEAVE : {
 				createLeaveMessage();
 			} break;
+			
 			case EXIT : {
 				createExitMessage();
 			} break;
+			
 			default : {
-				createMessage();
+				if (manager.getRole() == Role.AGENT && manager.getInterlocutor().getId() == 0) {
+					setErrorMessage(NO_INTERLOCUTOR);
+				} else {
+					createMessage();	
+				}
 			} break;
 			}
 		}
 	}
 	
-	private void createRegistrationMessage(Role role, String name) {
+	private void createRegistrationMessage() {
 		StringBuilder build = new StringBuilder();
 		build.append(MessageType.REG + "_")
-			.append(role + "_")
-			.append(name + "_")
+			.append(createMessageServiceInformation())
+			.append(" ")
 			.append("\n");
 		
 		message = build.toString();
 	}
 	
-	private void createMessage() {
+	private String createMessageServiceInformation() {
 		StringBuilder build = new StringBuilder();
-		build.append(MessageType.MSG.toString() + "_")
-			.append(manager.getId() + "_")
+		build.append(manager.getId() + "_")
 			.append(manager.getInterlocutor().getId() + "_")
 			.append(manager.getIdChat() + "_")
 			.append(manager.getName() + "_")
-			.append(manager.getRole().toString() + "_")
+			.append(manager.getRole().toString() + "_");
+		
+		return build.toString();
+	}
+	
+	private void createMessage() {
+		StringBuilder build = new StringBuilder();
+		build.append(MessageType.MSG.toString() + "_")
+			.append(createMessageServiceInformation())
 			.append(message)
 			.append("\n");
 		
@@ -115,11 +138,8 @@ public class MessageHandler {
 	private void createLeaveMessage() {
 		StringBuilder build = new StringBuilder();
 		build.append(MessageType.LEV.toString() + "_")
-			.append(manager.getId() + "_")
-			.append(manager.getInterlocutor().getId() + "_")
-			.append(manager.getName() + "_")
-			.append(manager.getRole().toString() + "_")
-			.append(manager.getIdChat())
+			.append(createMessageServiceInformation())
+			.append(manager.getName() + " " + LEAVE_CHAT)
 			.append("\n");
 		
 		message = build.toString();
@@ -128,11 +148,8 @@ public class MessageHandler {
 	private void createExitMessage() {
 		StringBuilder build = new StringBuilder();
 		build.append(MessageType.EXT.toString() + "_")
-			.append(manager.getId() + "_")
-			.append(manager.getInterlocutor().getId() + "_")
-			.append(manager.getName() + "_")
-			.append(manager.getRole().toString() + "_")
-			.append(manager.getIdChat())
+			.append(createMessageServiceInformation())
+			.append(manager.getName() + " " + LEAVE_CHAT)
 			.append("\n");
 		
 		message = build.toString();

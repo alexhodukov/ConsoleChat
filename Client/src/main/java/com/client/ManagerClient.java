@@ -21,8 +21,7 @@ public class ManagerClient {
 		return role == Role.GUEST;
 	}
 	
-	public void disconnectInterlucutor(String name) {
-		System.out.println("User " + name + " has left conversation.");
+	public void disconnectInterlucutor() {
 		interlocutor.disconnect();
 	}
 	

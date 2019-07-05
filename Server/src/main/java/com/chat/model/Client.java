@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-import com.chat.enums.CommunMethod;
+import com.chat.enums.CommunicationMethod;
 
 public class Client {
 	private static Logger log = Logger.getLogger(Client.class.getName());
@@ -16,7 +16,7 @@ public class Client {
 	private Socket socket; 
 	private String name;
 	private Queue<Message> listUnreadMsg;
-	private CommunMethod comMethod;
+	private CommunicationMethod comMethod;
 	
 	public Client(Socket socket, int id, String name) {
 		this.id = id;
@@ -24,9 +24,9 @@ public class Client {
 		this.listUnreadMsg = new LinkedList<>();
 		this.socket = socket;
 		if (socket == null) {
-			this.comMethod = CommunMethod.WEB;
+			this.comMethod = CommunicationMethod.WEB;
 		} else {
-			this.comMethod = CommunMethod.CONSOLE;	
+			this.comMethod = CommunicationMethod.CONSOLE;	
 		}
 	}
 	
@@ -36,20 +36,27 @@ public class Client {
 	
 	
 	
-	public CommunMethod getComMethod() {
+	public CommunicationMethod getComMethod() {
 		return comMethod;
 	}
 
-	public void setComMethod(CommunMethod comMethod) {
+	public void setComMethod(CommunicationMethod comMethod) {
 		this.comMethod = comMethod;
 	}
 
 	public void sendMessage(Message msg) {
 		try {
+			if (msg.getComMethod() == CommunicationMethod.CONSOLE && comMethod == CommunicationMethod.WEB) {
+				msg.convertToWeb();
+			}
+			if (msg.getComMethod() == CommunicationMethod.WEB && comMethod == CommunicationMethod.CONSOLE) {
+				msg.convertToConsole();
+			}
+			
 			BufferedOutputStream bufOut = new BufferedOutputStream(socket.getOutputStream());
 			bufOut.write(msg.getMessageBytes());
 			bufOut.flush();
-			log.info("Msg " + msg + "---------------- sent");
+			log.info("Message " + msg.getMessage() + " sent to client, id " + id + ", name " + name);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

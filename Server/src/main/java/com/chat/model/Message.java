@@ -2,6 +2,7 @@ package com.chat.model;
 
 import java.io.UnsupportedEncodingException;
 
+import com.chat.enums.CommunicationMethod;
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 
@@ -16,6 +17,7 @@ public class Message {
 	private String nameSender;
 	private boolean isErrorMessage;
 	private MessageType msgType;
+	private CommunicationMethod comMethod;
 	
 	public Message(String msg) {
 		this();
@@ -137,13 +139,20 @@ public class Message {
 		this.msgType = msgType;
 	}
 
+	public CommunicationMethod getComMethod() {
+		return comMethod;
+	}
+
+	public void setComMethod(CommunicationMethod comMethod) {
+		this.comMethod = comMethod;
+	}
+
 	@Override
 	public String toString() {
 		return "Message [message=" + message + ", idReceiver=" + idReceiver + ", idSender=" + idSender + ", idChat="
 				+ idChat + ", roleReceiver=" + roleReceiver + ", roleSender=" + roleSender + ", nameReceiver="
-				+ nameReceiver + ", nameSender=" + nameSender + "]";
+				+ nameReceiver + ", nameSender=" + nameSender + ", isErrorMessage=" + isErrorMessage + ", msgType="
+				+ msgType + "]";
 	}
-	
-	
 
 }

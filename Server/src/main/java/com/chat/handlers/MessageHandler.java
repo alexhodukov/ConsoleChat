@@ -2,17 +2,13 @@ package com.chat.handlers;
 
 import java.net.Socket;
 
-import com.chat.enums.MessageType;
+import com.chat.enums.CommunicationMethod;
 import com.chat.enums.Role;
 import com.chat.model.Message;
 import com.chat.services.ServiceManager;
+import com.chat.utils.MessageUtils;
 
 public class MessageHandler {	
-//	private static final String WELCOME = "Please, register as agent or client: /register agent(client)" + "\n";
-	private static final String REG_SUCCESS = "Registration successful!" + "\n";
-	private static final String UNSUP_COMMAND = "Unsupported command, please, write the command correctly!" + "\n";
-	private static final String INCOR_MESSAGE = "Incorrect format message!" + "\n";
-	
 	private ServiceManager manager;
 	
 	public MessageHandler(ServiceManager manager) {
@@ -21,136 +17,69 @@ public class MessageHandler {
 	
 	public void processMessage(String src, Socket socket) {
 		Message msg = new Message(src);
-		MessageType type = MessageType.valueOf(src.substring(0, 3));
-		msg.setMessage(msg.getMessage().substring(4, msg.getMessage().length()));
-		String[] tokens = msg.getMessage().split("_");
-		msg.setMsgType(type);
-		switch (type) {
+		msg.setComMethod(CommunicationMethod.CONSOLE);
+		MessageUtils.createMessageByParseString(msg);
+		
+		switch (msg.getMsgType()) {
 		case REG : {
 			registerUser(msg, socket);
 		} break;
-		case MSG : {
-			msg.setMessage("MSG_" + msg.getMessage() + "\n");
-			msg.setIdSender(Integer.parseInt(tokens[0]));
-			msg.setIdReceiver(Integer.parseInt(tokens[1]));
-			msg.setIdChat(Integer.parseInt(tokens[2]));
-			msg.setNameSender(tokens[3]);
-			Role role = Role.valueOf(tokens[4]);
-			msg.setRoleSender(role);
-			if (role == Role.CLIENT) {
-				msg.setRoleReceiver(Role.AGENT);
+		
+		case MSG : {			
+			
+			if (msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0) {
 				int idAgent = manager.getIdAgentByIdChat(msg.getIdChat());
 				msg.setIdReceiver(idAgent);
-			} else {
-				msg.setRoleReceiver(Role.CLIENT);
 			}
-			if (role == Role.CLIENT && msg.getIdReceiver() == 0 && !manager.isAgentConnecting(msg.getIdChat())) {
+			
+			if (msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0 && !manager.isAgentConnecting(msg.getIdChat())) {
+				manager.registerMessage(MessageUtils.createMessageClientWhenWaiting(msg, MessageUtils.SEARCHING_AGENT));
 				manager.connectAgent(msg);	
 			} 
+			
+			MessageUtils.convertInformationToStringMessage(msg);
 			manager.registerMessage(msg);	
 		} break;
-		case LEV : {
-			msg.setNameSender(tokens[3]);
-			int idReceiver = Integer.parseInt(tokens[1]);
-			msg.setIdReceiver(idReceiver);
-			int idSender = Integer.parseInt(tokens[0]);
-			Role roleSender = Role.valueOf(tokens[4]);
-			msg.setRoleSender(roleSender);
-			int idChat = Integer.parseInt(tokens[2]);
-			if (roleSender == Role.CLIENT) {
-				msg.setRoleReceiver(Role.AGENT);
-			} else {
-				msg.setRoleReceiver(Role.CLIENT);
-			}
-			msg.setMessage("leave");
-			createServiceMessage(msg);
+		
+		case LEV : {			
+			MessageUtils.convertInformationToStringMessage(msg);
 			manager.registerMessage(msg);
-			manager.leaveConversation(idSender, roleSender, idChat);
+			manager.leaveConversation(msg.getIdSender(), msg.getRoleSender(), msg.getIdChat());
 		} break;
+		
 		case EXT : {
-			msg.setNameSender(tokens[3]);
-			int idReceiver = Integer.parseInt(tokens[1]);
-			msg.setIdReceiver(idReceiver);
-			int idSender = Integer.parseInt(tokens[0]);
-			Role roleSender = Role.valueOf(tokens[4]);
-			msg.setRoleSender(roleSender);
-			int idChat = Integer.parseInt(tokens[2]);
-			if (roleSender == Role.CLIENT) {
-				msg.setRoleReceiver(Role.AGENT);
-			} else {
-				msg.setRoleReceiver(Role.CLIENT);
-			}
-			msg.setMessage("exit");
-			createServiceMessage(msg);
+			MessageUtils.convertInformationToStringMessage(msg);
 			manager.registerMessage(msg);
-			manager.exit(idSender, roleSender, idChat);
+			manager.exit(msg.getIdSender(), msg.getRoleSender(), msg.getIdChat());
 		} break;
 		}
 	}
 	
-	public void registerUser(Message msg, Socket socket) {
+	private void registerUser(Message msg, Socket socket) {
 		String[] tokens = msg.getMessage().split("_");
-		if (tokens.length == 2) {
-			int id = 0;
-			Role role = Role.valueOf(tokens[0]);
-			switch (role) {
-			case AGENT : {
-				registerSuccess(msg, REG_SUCCESS, tokens[1], Role.AGENT);
-				id = manager.createAgent(socket, msg.getNameReceiver());
-			} break;
-			case CLIENT : {
-				registerSuccess(msg, REG_SUCCESS, tokens[1], Role.CLIENT);
-				id = manager.createClient(socket, msg.getNameReceiver());
-				int idChat = manager.createChat(id);
-				msg.setIdChat(idChat);
-			} break;
-			default : {
-				setErrorMessage(msg, UNSUP_COMMAND);
-			} break;
-			}	
-			msg.setIdReceiver(id);
-			addHeaderRegistration(msg);
-			manager.registerMessage(msg);
-			if (role == Role.AGENT) {
-				manager.doFreeAgent(id);
-			}
-		} else {
-			setErrorMessage(msg, INCOR_MESSAGE);
+		int id = 0;
+		switch (msg.getRoleSender()) {
+		case AGENT : {
+			id = manager.createAgent(socket, msg.getNameSender());
+		} break;
+		case CLIENT : {
+			id = manager.createClient(socket, msg.getNameSender());
+			int idChat = manager.createChat(id);
+			msg.setIdChat(idChat);
+		} break;
 		}
-	}
-	
-	private void registerSuccess(Message msg, String src, String name, Role role) {
-		msg.setMessage(src);
-		msg.setNameReceiver(name);
-		msg.setRoleReceiver(role);
-	}
-	
-	
-	private void addHeaderRegistration(Message msg) {		
-		StringBuilder build = new StringBuilder();
-		build.append(MessageType.REG.toString() + "_")
-			.append(msg.getIdReceiver() + "_")
-			.append(msg.getRoleReceiver() + "_")
-			.append(msg.getNameReceiver() + "_")
-			.append(msg.getIdChat() + "_")
-			.append(msg.getMessage());
 		
-		msg.setMessage(build.toString());
-	}
-	
-	private void createServiceMessage(Message msg) {
-		StringBuilder build = new StringBuilder();
-		build.append(MessageType.SRV.toString() + "_")
-			.append(msg.getNameSender() + "_")
-			.append(msg.getRoleSender() + "_")
-			.append(msg.getMessage())
-			.append("\n");
+		msg.setIdReceiver(id);
+		msg.setNameReceiver(msg.getNameSender());
+		msg.setRoleReceiver(msg.getRoleSender());
+		msg.setMessage(MessageUtils.REG_SUCCESS);
 		
-		msg.setMessage(build.toString());
-	}
-	
-	private void setErrorMessage(Message msg, String s) {
-		msg.setErrorMessage(true);
-		msg.setMessage(s);
-	}
+		MessageUtils.convertInformationToStringMessage(msg);
+		manager.registerMessage(msg);
+		
+		if (msg.getRoleReceiver() == Role.AGENT) {
+			manager.doFreeAgent(id);
+		}
+	}	
+
 }

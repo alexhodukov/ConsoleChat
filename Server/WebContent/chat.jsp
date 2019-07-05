@@ -12,6 +12,7 @@
 			var isFirstMsg = true;
 			var isPolling = false;
 			var idReceiver = 0;
+			var connecting = true;
 			
 			if ("${role}" == "AGENT") {
 				getMessages();
@@ -40,6 +41,7 @@
 				        var msg = '';
 				        if (jqXHR.status === 0) {
 				            msg = 'Not connect.\n Verify Network.';
+				            connecting = false;
 				        } else if (jqXHR.status == 404) {
 				            msg = 'Requested page not found. [404]';
 				        } else if (jqXHR.status == 500) {
@@ -56,7 +58,9 @@
 				        console.log(msg);
 				    },
 					complete: function() {
-						getMessages();
+						if (connecting) {
+							getMessages();
+						}
 					}
 				});
 			};
@@ -81,7 +85,7 @@
 			$('#send').click(function() {
 				var message = $('#message').val();
 				if ("${role}" == "AGENT" && idReceiver < 1) {
-					console.log("You haven't a client for discussion!");
+					addMessageChat("You haven't a client for discussion. Your message isn't sent!");
 				} else {
 					addMessageChat("I am : " + message);
 					sendMessage(message);
