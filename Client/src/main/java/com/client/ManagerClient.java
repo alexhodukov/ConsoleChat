@@ -71,6 +71,4 @@ public class ManagerClient {
 	public synchronized Interlocutor getInterlocutor() {
 		return interlocutor;
 	}
-	
-	
 }

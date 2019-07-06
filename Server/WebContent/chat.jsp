@@ -13,8 +13,10 @@
 			var isPolling = false;
 			var idReceiver = 0;
 			var connecting = true;
+			var isGettingMessages = false;
 			
 			if ("${role}" == "AGENT") {
+				isGettingMessages = true;
 				getMessages();
 			}
 			
@@ -23,18 +25,21 @@
 			    	type: 'GET',
 			    	url: 'chat',
 			    	dataType: 'json',
-			    	// 			    	data: {
-// 			    		message: message
-// 					}, 
-// 					complete: poll, 
-// 					timeout: 4000,
 					success: function(data){
 						$.each(data, function(key, value) {
 							if (idReceiver == 0) {
 								idReceiver = value.idSender;
 							}
-							addMessageChat(value.nameSender + " : " + value.message);
-							console.log('key ' + key + ', value ' + value.message);
+							
+							if (value.message == "/leave") {
+								
+							} else if (value.message == "/exit") {
+								window.close();
+							} else {
+								addMessageChat(value.nameSender + " : " + value.message);
+								console.log('key ' + key + ', value ' + value.message);	
+							}
+							
 						})
 					},
 					error: function (jqXHR, exception) {
@@ -58,7 +63,7 @@
 				        console.log(msg);
 				    },
 					complete: function() {
-						if (connecting) {
+						if (connecting && isGettingMessages) {
 							getMessages();
 						}
 					}
@@ -75,20 +80,42 @@
 						console.log("success sendMessage()");
 						if ("${role}" == "CLIENT" && isFirstMsg) {
 							isFirstMsg = false;
+							isGettingMessages = true;
 							getMessages();
 						}
 					}
 				});
 			}
 			
+			function leave() {
+				if ("${role}" == "CLIENT") {
+					isFirstMsg = true;
+				}	
+				idReceiver = 0;
+				isGettingMessages = false;
+			}
+			
+			
+			function exit() {
+				idReceiver = 0;
+				isGettingMessages = false;
+			}
+			
 			
 			$('#send').click(function() {
 				var message = $('#message').val();
+				
 				if ("${role}" == "AGENT" && idReceiver < 1) {
 					addMessageChat("You haven't a client for discussion. Your message isn't sent!");
 				} else {
 					addMessageChat("I am : " + message);
 					sendMessage(message);
+				}
+				if (message == "/l") {
+					leave();
+				}
+				if (message == "/e") {
+					exit();
 				}
 			});
 			

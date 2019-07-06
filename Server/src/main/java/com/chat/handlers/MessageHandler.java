@@ -33,7 +33,7 @@ public class MessageHandler {
 			}
 			
 			if (msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0 && !manager.isAgentConnecting(msg.getIdChat())) {
-				manager.registerMessage(MessageUtils.createMessageClientWhenWaiting(msg, MessageUtils.SEARCHING_AGENT));
+				manager.registerMessage(MessageUtils.createMessageClientWhenWaiting(msg, null, MessageUtils.SEARCHING_AGENT));
 				manager.connectAgent(msg);	
 			} 
 			
@@ -48,8 +48,10 @@ public class MessageHandler {
 		} break;
 		
 		case EXT : {
-			MessageUtils.convertInformationToStringMessage(msg);
-			manager.registerMessage(msg);
+			if (msg.getIdReceiver() != 0) {
+				MessageUtils.convertInformationToStringMessage(msg);
+				manager.registerMessage(msg);	
+			}
 			manager.exit(msg.getIdSender(), msg.getRoleSender(), msg.getIdChat());
 		} break;
 		}

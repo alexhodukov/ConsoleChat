@@ -99,7 +99,6 @@ public class ServiceManager {
 	
 	public synchronized void registerMessage(Message msg) {
 		int idReceiver = msg.getIdReceiver();
-		int idSender = msg.getIdSender();
 		Role roleSender = msg.getRoleSender();
 		Role roleReceiver = msg.getRoleReceiver();
 		
@@ -171,7 +170,6 @@ public class ServiceManager {
 				log.info("Attempt send message " + msg.getMessage());
 				
 				int idReceiver = msg.getIdReceiver();
-				int idSender = msg.getIdSender();
 				switch (msg.getRoleReceiver()) {
 				case AGENT : {
 					Agent agent = listAgents.get(idReceiver);
@@ -221,16 +219,22 @@ public class ServiceManager {
 				 agent = getFreeAgent();
 			}
 			
-			Message msgAgentFount = MessageUtils.createMessageClientWhenWaiting(msg, agent.getName() + " " + MessageUtils.AGENT_FOUND);
-			registerMessage(msgAgentFount);
-			
 			int idChat = msg.getIdChat();
-			listChats.get(idChat).setIdAgent(agent.getId());
-			listChats.get(idChat).setAgentConnecting(false);
+			Chat chat = listChats.get(idChat);
 			
-			log.info("Starting conversation between agent " + agent.getName() + " and client " + msg.getNameSender() + ".");
-			
-			getUnreadMessages(idChat, agent);			
+			if (chat != null) {
+				chat.setIdAgent(agent.getId());
+				chat.setAgentConnecting(false);
+				
+				Message msgAgentFount = MessageUtils.createMessageClientWhenWaiting(msg, agent, agent.getName() + " " + MessageUtils.AGENT_FOUND);
+				registerMessage(msgAgentFount);
+				
+				log.info("Starting conversation between agent " + agent.getName() + " and client " + msg.getNameSender() + ".");
+				
+				getUnreadMessages(idChat, agent);	
+			} else {
+				doFreeAgent(agent.getId());
+			}
 		};
 		
 		Thread t = new Thread(r);
@@ -252,9 +256,12 @@ public class ServiceManager {
 		if (role == Role.AGENT) {
 			doFreeAgent(listAgents.get(idUser).getId());
 		} 
+		
 		if (role == Role.CLIENT) {
 			int idAgent = listChats.get(idChat).getIdAgent();
-			doFreeAgent(listAgents.get(idAgent).getId());
+			if (idAgent > 0) {
+				doFreeAgent(idAgent);	
+			}
 		}
 		listChats.get(idChat).disconnectAgent();
 	}
@@ -262,14 +269,19 @@ public class ServiceManager {
 	public void exit(int idUser, Role role, int idChat) {
 		if (role == Role.AGENT) {
 			listAgents.remove(idUser);
-			listChats.get(idChat).disconnectAgent();
+			if (idChat > 0) {
+				listChats.get(idChat).disconnectAgent();	
+			}
 		}
+		
 		if (role == Role.CLIENT) {
 			listClients.remove(idUser);
 			int idAgent = listChats.get(idChat).getIdAgent();
-			doFreeAgent(listAgents.get(idAgent).getId());
+			listChats.remove(idChat);
+			if (idAgent > 0) {
+				doFreeAgent(idAgent);	
+			}
 		}
-		
 	}
 	
 	public boolean agentIsFree(int id) {

@@ -10,7 +10,9 @@ public class MessageHandler {
 	private static final String EXIT = "/e";
 	private static final String LEAVE = "/l";
 	private static final String LEAVE_CHAT = "has left this chat";
-	private static final String NO_INTERLOCUTOR = "You haven't a client for discussion. Your message isn't sent!";
+	private static final String NO_INTERLOCUTOR_CLIENT = "You haven't a client for conversation. Your message isn't sent!";
+	private static final String NO_INTERLOCUTOR_AGENT = "You can't leave this chat, because you haven't an agent for conversation!";
+	private static final String NO_CHAT = "You aren't in any chat!";
 	
 	private ManagerClient manager;
 	private String message;
@@ -36,14 +38,8 @@ public class MessageHandler {
 			message = tokens[5];
 		} break;
 		
-		case MSG : {
-			if (manager.getInterlocutor().getId() == 0) {
-				manager.getInterlocutor().setId(Integer.parseInt(tokens[0]));
-				manager.setIdChat(Integer.parseInt(tokens[2]));
-				manager.getInterlocutor().setName((tokens[3]));
-				manager.getInterlocutor().setRole((Role.valueOf(tokens[4])));
-			}
-			
+		case MSG : {			
+			setInterlocutor(tokens);
 			message = manager.getInterlocutor().getName() + " : " + tokens[5];
 		} break;
 		
@@ -59,8 +55,19 @@ public class MessageHandler {
 		} break;
 		
 		case SRV : {
+			setInterlocutor(tokens);
 			message = tokens[5];
 		} break;
+		}
+	}
+	
+	private void setInterlocutor(String[] tokens) {
+		if (manager.getInterlocutor().getId() == 0 && Integer.parseInt(tokens[0]) != 0) {
+			
+			manager.getInterlocutor().setId(Integer.parseInt(tokens[0]));
+			manager.setIdChat(Integer.parseInt(tokens[2]));
+			manager.getInterlocutor().setName((tokens[3]));
+			manager.getInterlocutor().setRole((Role.valueOf(tokens[4])));	
 		}
 	}
 	
@@ -86,8 +93,16 @@ public class MessageHandler {
 			
 			switch (message) {
 			case LEAVE : {
-				createLeaveMessage();
-				manager.disconnectInterlucutor();
+				if (manager.getInterlocutor().getId() == 0) {
+					if (manager.getRole() == Role.AGENT) {
+						setErrorMessage(NO_CHAT);	
+					} else {
+						setErrorMessage(NO_INTERLOCUTOR_AGENT);
+					}
+				} else {
+					createLeaveMessage();
+					manager.disconnectInterlucutor();
+				}
 			} break;
 			
 			case EXIT : {
@@ -97,7 +112,7 @@ public class MessageHandler {
 			
 			default : {
 				if (manager.getRole() == Role.AGENT && manager.getInterlocutor().getId() == 0) {
-					setErrorMessage(NO_INTERLOCUTOR);
+					setErrorMessage(NO_INTERLOCUTOR_CLIENT);
 				} else {
 					createMessage();	
 				}

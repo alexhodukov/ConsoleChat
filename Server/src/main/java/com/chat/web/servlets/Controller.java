@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import com.chat.enums.Role;
 import com.chat.handlers.HttpMessageHandler;
 import com.chat.model.Message;
+import com.chat.utils.MessageUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Controller extends HttpServlet {
@@ -31,6 +32,20 @@ public class Controller extends HttpServlet {
 		int idChat = (int) session.getAttribute("idChat");
 		Role roleSender = (Role) session.getAttribute("role");
 		String nameSender = (String) session.getAttribute("name");
+		
+		if (msg.equals(MessageUtils.LEAVE)) {
+			session.setAttribute("idReceiver", 0);
+			if (roleSender == Role.AGENT) {
+				session.setAttribute("idChat", 0);
+			}
+			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+			httpMsgHandler.leaveConversation(idSender, roleSender, idChat);
+		}
+		
+		if (msg.equals(MessageUtils.EXIT)) {
+			httpMsgHandler.exit(idSender, roleSender, idChat);
+			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+		}
 		
 		msg.setIdSender(idSender);
 		msg.setIdReceiver(idReceiver);

@@ -2,12 +2,16 @@ package com.chat.utils;
 
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
+import com.chat.model.Agent;
 import com.chat.model.Message;
 
 public class MessageUtils {
 	public static final String SEARCHING_AGENT = "Now will be a search free agent for you";
 	public static final String AGENT_FOUND = "connected to the chat";
 	public static final String REG_SUCCESS = "Registration successful!";
+	public static final String LEAVE = "/l";
+	public static final String EXIT = "/e";
+	public static final String LEAVE_CHAT = "has left this chat";
 	
 	public static void createMessageByParseString(Message msg) {
 		String[] tokens = msg.getMessage().split("_");
@@ -39,13 +43,13 @@ public class MessageUtils {
 		}
 	}
 	
-	public static Message createMessageClientWhenWaiting(Message msgOrigin, String src) {
+	public static Message createMessageClientWhenWaiting(Message msgOrigin, Agent agent, String src) {
 		Message msg = new Message();
 		msg.setMsgType(MessageType.SRV);
-		msg.setIdSender(msgOrigin.getIdSender());
+		msg.setIdSender(agent == null ? 0 : agent.getId());
 		msg.setIdReceiver(msgOrigin.getIdSender());
 		msg.setIdChat(msgOrigin.getIdChat());
-		msg.setNameSender(msgOrigin.getNameSender());
+		msg.setNameSender(agent == null ? "" : agent.getName());
 		msg.setRoleSender(msgOrigin.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
 		msg.setRoleReceiver(msgOrigin.getRoleSender());
 		msg.setMessage(src);

@@ -58,4 +58,12 @@ public class HttpMessageHandler {
 	public int getIdAgentByIdChat(int idChat) {
 		return manager.getIdAgentByIdChat(idChat);
 	}
+	
+	public void leaveConversation(int idUser, Role role, int idChat) {
+		manager.leaveConversation(idUser, role, idChat);
+	}
+	
+	public void exit(int idUser, Role role, int idChat) {
+		manager.exit(idUser, role, idChat);
+	}
 }

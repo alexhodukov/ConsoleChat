@@ -38,7 +38,7 @@ public class ClientOutput implements Runnable {
 					}
 	
 				}
-							}	
+			}	
 		} 
 	}
 }
