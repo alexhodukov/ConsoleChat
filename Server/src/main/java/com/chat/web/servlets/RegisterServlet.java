@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 import com.chat.enums.Role;
 import com.chat.handlers.HttpMessageHandler;
 
-public class Register extends HttpServlet {
+public class RegisterServlet extends HttpServlet {
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

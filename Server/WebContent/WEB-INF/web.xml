@@ -14,7 +14,7 @@
 
 	<servlet>
 		<servlet-name>Register</servlet-name>
-		<servlet-class>com.chat.web.servlets.Register</servlet-class>
+		<servlet-class>com.chat.web.servlets.RegisterServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
@@ -24,13 +24,23 @@
 	
 	<servlet>
 		<servlet-name>Controller</servlet-name>
-		<servlet-class>com.chat.web.servlets.Controller</servlet-class>
+		<servlet-class>com.chat.web.servlets.ControllerServlet</servlet-class>
 		<async-supported>true</async-supported>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>Controller</servlet-name>
 		<url-pattern>/chat</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>Logout</servlet-name>
+		<servlet-class>com.chat.web.servlets.LogoutServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Logout</servlet-name>
+		<url-pattern>/logout</url-pattern>
 	</servlet-mapping>
 	
 	<listener>  

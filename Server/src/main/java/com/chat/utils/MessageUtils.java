@@ -57,6 +57,18 @@ public class MessageUtils {
 		return msg;
 	}
 	
+	public static Message createServiceMessageLeaveExit(Message msgOrigin, String src) {
+		Message msg = new Message();
+		msg.setIdSender(0);
+		msg.setIdReceiver(msgOrigin.getIdSender());
+		msg.setIdChat(msgOrigin.getIdChat());
+		msg.setNameSender("SERVICE");
+		msg.setRoleSender(msgOrigin.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
+		msg.setRoleReceiver(msgOrigin.getRoleSender());
+		msg.setMessage(src);
+		return msg;
+	}
+	
 	public static void convertInformationToStringMessage(Message msg) {
 		StringBuilder build = new StringBuilder();
 		build.append(msg.getMsgType() + "_")

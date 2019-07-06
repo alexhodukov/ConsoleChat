@@ -12,13 +12,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 import com.chat.handlers.HttpMessageHandler;
 import com.chat.model.Message;
 import com.chat.utils.MessageUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Controller extends HttpServlet {
+public class ControllerServlet extends HttpServlet {
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,31 +34,40 @@ public class Controller extends HttpServlet {
 		Role roleSender = (Role) session.getAttribute("role");
 		String nameSender = (String) session.getAttribute("name");
 		
-		if (msg.equals(MessageUtils.LEAVE)) {
-			session.setAttribute("idReceiver", 0);
-			if (roleSender == Role.AGENT) {
-				session.setAttribute("idChat", 0);
-			}
-			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
-			httpMsgHandler.leaveConversation(idSender, roleSender, idChat);
-		}
-		
-		if (msg.equals(MessageUtils.EXIT)) {
-			httpMsgHandler.exit(idSender, roleSender, idChat);
-			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
-		}
-		
 		msg.setIdSender(idSender);
 		msg.setIdReceiver(idReceiver);
 		msg.setIdChat(idChat);
 		msg.setRoleSender(roleSender);
 		msg.setNameSender(nameSender);
+		msg.setRoleReceiver(msg.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
+		
+		
+		
+		if (msg.equals(MessageUtils.LEAVE)) {
+			session.setAttribute("idReceiver", 0);
+			if (roleSender == Role.AGENT) {
+				session.setAttribute("idChat", 0);
+			}
+			httpMsgHandler.leaveConversation(idSender, roleSender, idChat);
+			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+			
+			httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.EXT, "leave");
+		}
+		
+		if (msg.equals(MessageUtils.EXIT)) {
+			httpMsgHandler.exit(idSender, roleSender, idChat);
+			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+			
+			httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.EXT, "exit");
+		}
+		
+		
+		
 		
 		if (roleSender == Role.CLIENT && idReceiver == 0 && !httpMsgHandler.isAgentConnecting(idChat)) {
 			httpMsgHandler.connectAgent(msg);
 		}
-		
-		httpMsgHandler.process(msg);
+		httpMsgHandler.process(msg);		
 	}
 	
 	@Override
@@ -87,13 +97,11 @@ public class Controller extends HttpServlet {
 			async.getResponse().setContentType("application/json");
 			Runnable r = () -> {
 				PrintWriter out;
-				try {
-					
+				try {	
 					out = async.getResponse().getWriter();
 					List<Message> listMsg = new ArrayList<>(httpMsgHandler.getMessages(idSender));
 					List<String> listMsgStr = new ArrayList<>();
 					if (roleSender == Role.AGENT && (int) session.getAttribute("idReceiver") == 0) {
-						System.out.println("It's Agent and set receiver");
 						if (!listMsg.isEmpty()) {
 							Message msg = listMsg.get(0);
 							int idSend = msg.getIdSender();

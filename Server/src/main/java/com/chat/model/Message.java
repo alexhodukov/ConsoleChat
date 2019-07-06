@@ -50,12 +50,12 @@ public class Message {
 	
 	public void convertToConsole() {
 		StringBuilder build = new StringBuilder();
-		build.append(msgType.toString() + "_")
+		build.append(msgType + "_")
 			.append(idSender + "_")
 			.append(idReceiver + "_")
 			.append(idChat + "_")
 			.append(nameSender + "_")
-			.append(roleSender.toString() + "_")
+			.append(roleSender + "_")
 			.append(message + "\n");
 		
 		message = build.toString();

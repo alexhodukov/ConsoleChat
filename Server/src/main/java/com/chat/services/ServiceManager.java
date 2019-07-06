@@ -20,6 +20,7 @@ import com.chat.model.Message;
 import com.chat.utils.MessageUtils;
 
 public class ServiceManager {
+	private static final int TIME_OUT_WAITING = 10_000;
 	private static Logger log = Logger.getLogger(ServiceManager.class.getName());
 	private AtomicInteger incIdAgent;
 	private AtomicInteger incIdClient;
@@ -138,7 +139,7 @@ public class ServiceManager {
 			que = listHttpMessages.remove(idReceiver);
 		} else {
 			try {
-				wait(20000);
+				wait(TIME_OUT_WAITING);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -282,6 +283,10 @@ public class ServiceManager {
 				doFreeAgent(idAgent);	
 			}
 		}
+	}
+	
+	public void deleteHttpMessageById(int id) {
+		listHttpMessages.remove(id);
 	}
 	
 	public boolean agentIsFree(int id) {

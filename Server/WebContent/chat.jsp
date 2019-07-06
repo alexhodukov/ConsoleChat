@@ -9,6 +9,10 @@
 
 		$(document).ready(function() {
 			
+			var no_interlocutor_agent = "You can't leave this chat, because you haven't an agent for conversation!";
+			var no_interlocutor_client = "You haven't a client for conversation. Your message isn't sent!";
+			var no_chat = "You aren't in any chat!";
+			
 			var isFirstMsg = true;
 			var isPolling = false;
 			var idReceiver = 0;
@@ -88,9 +92,14 @@
 			}
 			
 			function leave() {
-				if ("${role}" == "CLIENT") {
-					isFirstMsg = true;
+				if (idReceiver == 0) {
+					if ("${role}" == "CLIENT") {
+						addMessageChat(no_interlocutor_agent);	
+					} else {
+						addMessageChat(no_chat);
+					}
 				}	
+				
 				idReceiver = 0;
 				isGettingMessages = false;
 			}
@@ -99,6 +108,8 @@
 			function exit() {
 				idReceiver = 0;
 				isGettingMessages = false;
+				console.log("exit");
+				window.location.href = "logout";
 			}
 			
 			
@@ -106,10 +117,11 @@
 				var message = $('#message').val();
 				
 				if ("${role}" == "AGENT" && idReceiver < 1) {
-					addMessageChat("You haven't a client for discussion. Your message isn't sent!");
+					addMessageChat(no_interlocutor_client);
 				} else {
 					addMessageChat("I am : " + message);
 					sendMessage(message);
+					$('#message').val("");
 				}
 				if (message == "/l") {
 					leave();

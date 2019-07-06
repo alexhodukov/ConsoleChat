@@ -2,9 +2,11 @@ package com.chat.handlers;
 
 import java.util.Collection;
 
+import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 import com.chat.model.Message;
 import com.chat.services.ServiceManager;
+import com.chat.utils.MessageUtils;
 
 public class HttpMessageHandler {
 	private ServiceManager manager;
@@ -14,7 +16,6 @@ public class HttpMessageHandler {
 	}
 	
 	public void process(Message msg) {
-		msg.setRoleReceiver(msg.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
 		manager.registerMessage(msg);
 	}
 	
@@ -64,6 +65,13 @@ public class HttpMessageHandler {
 	}
 	
 	public void exit(int idUser, Role role, int idChat) {
+		manager.deleteHttpMessageById(idUser);
 		manager.exit(idUser, role, idChat);
+	}
+	
+	public void createServiceMessageLeaveExit(Message msgOrigin, MessageType type, String src) {
+		Message servMsg = MessageUtils.createServiceMessageLeaveExit(msgOrigin, src);
+		servMsg.setMsgType(type);
+		manager.registerMessage(servMsg);
 	}
 }
