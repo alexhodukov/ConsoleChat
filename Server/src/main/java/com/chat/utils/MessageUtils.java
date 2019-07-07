@@ -1,5 +1,6 @@
 package com.chat.utils;
 
+import com.chat.enums.CommunicationMethod;
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 import com.chat.model.Agent;
@@ -45,11 +46,12 @@ public class MessageUtils {
 	
 	public static Message createMessageClientWhenWaiting(Message msgOrigin, Agent agent, String src) {
 		Message msg = new Message();
+		msg.setComMethod(CommunicationMethod.CONSOLE);
 		msg.setMsgType(MessageType.SRV);
 		msg.setIdSender(agent == null ? 0 : agent.getId());
 		msg.setIdReceiver(msgOrigin.getIdSender());
 		msg.setIdChat(msgOrigin.getIdChat());
-		msg.setNameSender(agent == null ? "" : agent.getName());
+		msg.setNameSender(agent == null ? "--SERVICE--" : agent.getName());
 		msg.setRoleSender(msgOrigin.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
 		msg.setRoleReceiver(msgOrigin.getRoleSender());
 		msg.setMessage(src);
@@ -62,7 +64,7 @@ public class MessageUtils {
 		msg.setIdSender(0);
 		msg.setIdReceiver(msgOrigin.getIdSender());
 		msg.setIdChat(msgOrigin.getIdChat());
-		msg.setNameSender("SERVICE");
+		msg.setNameSender("---SERVICE---");
 		msg.setRoleSender(msgOrigin.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
 		msg.setRoleReceiver(msgOrigin.getRoleSender());
 		msg.setMessage(src);

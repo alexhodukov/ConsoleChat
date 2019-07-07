@@ -161,6 +161,9 @@ public class ServiceManager {
 					if (que.isEmpty()) {
 						try {
 							que.wait(TIME_OUT_WAITING);
+							while (!que.isEmpty()) {
+								queResult.add(que.poll());
+							}
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}

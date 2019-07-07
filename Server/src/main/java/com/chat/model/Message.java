@@ -44,21 +44,26 @@ public class Message {
 	}
 	
 	public void convertToWeb() {
-		String[] tokens = message.split("_");
-		message = tokens[6];
+		if (comMethod == CommunicationMethod.CONSOLE) {
+			String[] tokens = message.split("_");
+			System.out.println("message " + message);
+			message = tokens[6];	
+		}
 	}
 	
 	public void convertToConsole() {
-		StringBuilder build = new StringBuilder();
-		build.append(msgType + "_")
-			.append(idSender + "_")
-			.append(idReceiver + "_")
-			.append(idChat + "_")
-			.append(nameSender + "_")
-			.append(roleSender + "_")
-			.append(message + "\n");
-		
-		message = build.toString();
+		if (comMethod == CommunicationMethod.WEB) {
+			StringBuilder build = new StringBuilder();
+			build.append(msgType + "_")
+				.append(idSender + "_")
+				.append(idReceiver + "_")
+				.append(idChat + "_")
+				.append(nameSender + "_")
+				.append(roleSender + "_")
+				.append(message + "\n");
+			
+			message = build.toString();	
+		}
 	}
 
 	public void setIdReceiver(int idReceiver) {

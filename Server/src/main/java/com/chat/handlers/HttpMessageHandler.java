@@ -2,6 +2,7 @@ package com.chat.handlers;
 
 import java.util.Collection;
 
+import com.chat.enums.CommunicationMethod;
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 import com.chat.model.Message;
@@ -16,6 +17,7 @@ public class HttpMessageHandler {
 	}
 	
 	public void process(Message msg) {
+		msg.setComMethod(CommunicationMethod.WEB);
 		manager.registerMessage(msg);
 	}
 	
@@ -49,6 +51,7 @@ public class HttpMessageHandler {
 	}
 	
 	public void connectAgent(Message msg) {
+		manager.registerMessage(MessageUtils.createMessageClientWhenWaiting(msg, null, MessageUtils.SEARCHING_AGENT));
 		manager.connectAgent(msg);
 	}
 	
@@ -72,6 +75,7 @@ public class HttpMessageHandler {
 	public void createServiceMessageLeaveExit(Message msgOrigin, MessageType type, String src) {
 		Message servMsg = MessageUtils.createServiceMessageLeaveExit(msgOrigin, src);
 		servMsg.setMsgType(type);
+		System.out.println("servMsg " + servMsg);
 		manager.registerMessage(servMsg);
 	}
 }
