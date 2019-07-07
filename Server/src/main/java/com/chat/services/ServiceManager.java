@@ -1,7 +1,6 @@
 package com.chat.services;
 
 import java.net.Socket;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -19,7 +18,6 @@ import com.chat.model.Chat;
 import com.chat.model.Client;
 import com.chat.model.Message;
 import com.chat.utils.MessageUtils;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 public class ServiceManager {
 	private static final int TIME_OUT_WAITING = 30_000;
@@ -124,14 +122,17 @@ public class ServiceManager {
 			log.info("Register message in unread listMessages " + msg.getMessage());
 		} else {
 			if (isEqualsCommunicationMethod(msg.getMsgType(), roleReceiver, idReceiver, CommunicationMethod.WEB)) {
-				synchronized (listHttpMessages) {
-					if (listHttpMessages.containsKey(idReceiver)) {
-						listHttpMessages.get(idReceiver).add(msg);
-						log.info("Register message in HTTP list " + msg.getMessage());
-						listHttpMessages.notifyAll();
+				Queue<Message> que = listHttpMessages.get(idReceiver);
+				if (que != null) {
+					synchronized (que) {
+						if (que != null) {
+							que.add(msg);
+							log.info("Register message in HTTP list " + msg.getMessage());
+							que.notifyAll();
+						}
+						
 					}	
-				}
-				 
+				}				 
 			} else {
 				synchronized (listMessages) {
 					listMessages.add(msg);
@@ -152,22 +153,29 @@ public class ServiceManager {
 	}
 	
 	public Queue<Message> getHttpMessages(int idReceiver) {
-		
-		synchronized (listHttpMessages) {
-			Queue<Message> que = new LinkedList<>();
-			if (listHttpMessages.containsKey(idReceiver)) {
-				que = listHttpMessages.get(idReceiver);
-				if (que.isEmpty()) {
-					try {
-						wait(TIME_OUT_WAITING);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+		Queue<Message> que = listHttpMessages.get(idReceiver);
+		Queue<Message> queResult = new LinkedList<>();
+		if (que != null) {
+			synchronized (que) {
+				if (que != null) {
+					if (que.isEmpty()) {
+						try {
+							que.wait(TIME_OUT_WAITING);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					} else {
+						while (!que.isEmpty()) {
+							queResult.add(que.poll());
+						}
 					}
+					
 				}
-			} 
-			return que;
-		}
-		
+				
+			}	
+		}	
+		return queResult;
+	
 	}
 	
 	public int getIdAgentByIdChat(int idChat) {
