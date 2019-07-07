@@ -1,6 +1,7 @@
 package com.chat.services;
 
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -18,9 +19,10 @@ import com.chat.model.Chat;
 import com.chat.model.Client;
 import com.chat.model.Message;
 import com.chat.utils.MessageUtils;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 public class ServiceManager {
-	private static final int TIME_OUT_WAITING = 10_000;
+	private static final int TIME_OUT_WAITING = 30_000;
 	private static Logger log = Logger.getLogger(ServiceManager.class.getName());
 	private AtomicInteger incIdAgent;
 	private AtomicInteger incIdClient;
@@ -56,8 +58,12 @@ public class ServiceManager {
 	
 	public int createHttpAgent(String name) {
 		int id = incIdAgent.incrementAndGet();
-		Agent agent = new Agent(id, name);
+		Agent agent = new Agent(id, name);		
 		registerAgent(agent);
+		
+		Queue<Message> listMessages = new LinkedList<>();
+		listHttpMessages.put(id, listMessages);
+		
 		return id;
 	}
 	
@@ -72,6 +78,10 @@ public class ServiceManager {
 		int id = incIdClient.incrementAndGet();
 		Client client = new Client(id, name);
 		registerClient(client);
+		
+		Queue<Message> listMessages = new LinkedList<>();
+		listHttpMessages.put(id, listMessages);
+		
 		return id;
 	}
 	
@@ -82,23 +92,29 @@ public class ServiceManager {
 		return idChat;
 	}
 	
-	private synchronized void registerAgent(Agent agent) {
-		listAgents.put(agent.getId(), agent);
-		log.info("Registration agent " + agent);
+	private void registerAgent(Agent agent) {
+		synchronized(listAgents) {
+			listAgents.put(agent.getId(), agent);
+			log.info("Registration agent " + agent);
+		}
 	}
 	
-	public synchronized void doFreeAgent(int idAgent) {
-		freeAgents.add(idAgent);
-		log.info("Agent " + listAgents.get(idAgent).getName() + " is free.");
-		notifyAll();
+	public void doFreeAgent(int idAgent) {
+		synchronized (freeAgents) {
+			freeAgents.add(idAgent);
+			log.info("Agent " + listAgents.get(idAgent).getName() + " is free.");
+			freeAgents.notifyAll();	
+		}
 	}
 	
-	private synchronized void registerClient(Client client) {
-		listClients.put(client.getId(), client);
-		log.info("Registration client " + client);
+	private void registerClient(Client client) {
+		synchronized(listClients) {
+			listClients.put(client.getId(), client);
+			log.info("Registration client " + client);
+		}
 	}
 	
-	public synchronized void registerMessage(Message msg) {
+	public void registerMessage(Message msg) {
 		int idReceiver = msg.getIdReceiver();
 		Role roleSender = msg.getRoleSender();
 		Role roleReceiver = msg.getRoleReceiver();
@@ -108,21 +124,23 @@ public class ServiceManager {
 			log.info("Register message in unread listMessages " + msg.getMessage());
 		} else {
 			if (isEqualsCommunicationMethod(msg.getMsgType(), roleReceiver, idReceiver, CommunicationMethod.WEB)) {
-				
-				if (listHttpMessages.containsKey(idReceiver)) {
-					listHttpMessages.get(idReceiver).add(msg);
-				} else {
-					Queue<Message> listMessages = new LinkedList<>();
-					listMessages.add(msg);
-					listHttpMessages.put(idReceiver, listMessages);
+				synchronized (listHttpMessages) {
+					if (listHttpMessages.containsKey(idReceiver)) {
+						listHttpMessages.get(idReceiver).add(msg);
+						log.info("Register message in HTTP list " + msg.getMessage());
+						listHttpMessages.notifyAll();
+					}	
 				}
-				log.info("Register message in HTTP list " + msg.getMessage());
-				
+				 
 			} else {
-				listMessages.add(msg);
-				log.info("Register message in CONSOLE list " + msg.getMessage());
+				synchronized (listMessages) {
+					listMessages.add(msg);
+					log.info("Register message in CONSOLE list " + msg.getMessage());
+					listMessages.notifyAll();
+				}
+				
 			}	
-			notifyAll();
+			
 		}
 		
 	}
@@ -133,18 +151,23 @@ public class ServiceManager {
 				(roleReceiver == Role.CLIENT && listClients.get(idReceiver).getComMethod() == method);
 	}
 	
-	public synchronized Queue<Message> getHttpMessages(int idReceiver) {
-		Queue<Message> que = new LinkedList<>();
-		if (listHttpMessages.containsKey(idReceiver)) {
-			que = listHttpMessages.remove(idReceiver);
-		} else {
-			try {
-				wait(TIME_OUT_WAITING);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	public Queue<Message> getHttpMessages(int idReceiver) {
+		
+		synchronized (listHttpMessages) {
+			Queue<Message> que = new LinkedList<>();
+			if (listHttpMessages.containsKey(idReceiver)) {
+				que = listHttpMessages.get(idReceiver);
+				if (que.isEmpty()) {
+					try {
+						wait(TIME_OUT_WAITING);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			} 
+			return que;
 		}
-		return que;
+		
 	}
 	
 	public int getIdAgentByIdChat(int idChat) {
@@ -159,41 +182,44 @@ public class ServiceManager {
 		return listChats.get(idChat).getIdAgent();
 	}
 	
-	public synchronized void sendMessage() {
-		try {
-			while (listMessages.isEmpty()) {
-				wait();	
-			}
-			
-			if (!listMessages.isEmpty()) {
-				Message msg = listMessages.poll();
-				
-				log.info("Attempt send message " + msg.getMessage());
-				
-				int idReceiver = msg.getIdReceiver();
-				switch (msg.getRoleReceiver()) {
-				case AGENT : {
-					Agent agent = listAgents.get(idReceiver);
-					if (agent != null) {
-						agent.sendMessage(msg);
-					}
-				} break;
-				
-				case CLIENT : {
-					Client client = listClients.get(idReceiver);
-					if (client != null) {
-						client.sendMessage(msg);
-					}
-				} break;
+	public void sendMessage() {
+		synchronized (listMessages) {
+			try {
+				while (listMessages.isEmpty()) {
+					listMessages.wait();	
 				}
+				 
+				if (!listMessages.isEmpty()) {
+					Message msg = listMessages.poll();
+					
+					log.info("Attempt send message " + msg.getMessage());
+					
+					int idReceiver = msg.getIdReceiver();
+					switch (msg.getRoleReceiver()) {
+					case AGENT : {
+						Agent agent = listAgents.get(idReceiver);
+						if (agent != null) {
+							agent.sendMessage(msg);
+						}
+					} break;
+					
+					case CLIENT : {
+						Client client = listClients.get(idReceiver);
+						if (client != null) {
+							client.sendMessage(msg);
+						}
+					} break;
+					}
+				}
+					
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-				
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
+		
 	}
 	
-	public synchronized boolean isExistFreeAgents() {
+	public boolean isExistFreeAgents() {
 		return freeAgents.size() > 0;
 	}
 	
@@ -201,15 +227,18 @@ public class ServiceManager {
 		return listChats.get(idChat).isAgentConnecting();
 	}
 	
-	private synchronized Agent getFreeAgent() {
-		try {
-			while (!isExistFreeAgents()) {
-				wait();	
+	private Agent getFreeAgent() {
+		synchronized (freeAgents) {
+			try {
+				while (!isExistFreeAgents()) {
+					freeAgents.wait();	
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			return listAgents.get(freeAgents.poll());	
 		}
-		return listAgents.get(freeAgents.poll());
+		
 	}
 	
 	public void connectAgent(Message msg) {
@@ -227,8 +256,8 @@ public class ServiceManager {
 				chat.setIdAgent(agent.getId());
 				chat.setAgentConnecting(false);
 				
-				Message msgAgentFount = MessageUtils.createMessageClientWhenWaiting(msg, agent, agent.getName() + " " + MessageUtils.AGENT_FOUND);
-				registerMessage(msgAgentFount);
+				Message msgAgentFound = MessageUtils.createMessageClientWhenWaiting(msg, agent, agent.getName() + " " + MessageUtils.AGENT_FOUND);
+				registerMessage(msgAgentFound);
 				
 				log.info("Starting conversation between agent " + agent.getName() + " and client " + msg.getNameSender() + ".");
 				
