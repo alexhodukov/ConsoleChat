@@ -29,9 +29,7 @@ public class ControllerServlet extends HttpServlet {
 		Message msg = new Message(req.getParameter("message"));
 		int idSender = Integer.parseInt(req.getParameter("id"));
 		int idChat = Integer.parseInt(req.getParameter("idChat"));
-		Role roleSender = Role.valueOf(req.getParameter("role"));
-//		System.out.println("DELETE. id " + idSender + ", idChat " + idChat + ",role " + roleSender);
-		
+		Role roleSender = Role.valueOf(req.getParameter("role"));		
 
 		switch (msg.getMessage()) {
 		case "exit" : {
@@ -40,25 +38,16 @@ public class ControllerServlet extends HttpServlet {
 		} break;
 		
 		case "leave" : {
-			
+			httpMsgHandler.leaveConversation(idSender, roleSender, idChat);
 		} break;
 		}
-		
-//		System.out.println("END method doDelete");
 	}
 	
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		HttpSession session = req.getSession();		
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {	
 		HttpMessageHandler httpMsgHandler = (HttpMessageHandler) req.getServletContext().getAttribute("httpMsgHandler");
 		
 		Message msg = new Message(req.getParameter("message"));
-//		
-//		int idSender = (int) session.getAttribute("idUser");
-//		int idReceiver = (int) session.getAttribute("idReceiver");
-//		int idChat = (int) session.getAttribute("idChat");
-//		Role roleSender = (Role) session.getAttribute("role");
-//		String nameSender = (String) session.getAttribute("name");
 		
 		int idSender = Integer.parseInt(req.getParameter("id"));
 		int idReceiver = Integer.parseInt(req.getParameter("idReceiver"));
@@ -80,20 +69,22 @@ public class ControllerServlet extends HttpServlet {
 		
 		switch(msg.getMessage()) {
 		case MessageUtils.LEAVE : {
+			System.out.println("DoPost.Leave");
 			httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.LEV, "leave");
 			
 			msg.setMsgType(MessageType.LEV);
 			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
 			httpMsgHandler.process(msg);
-			httpMsgHandler.exit(idSender, roleSender, idChat);
 		} break;
 		
 		case MessageUtils.EXIT : {
 			httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.EXT, "exit");
 			
-			msg.setMsgType(MessageType.EXT);
-			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
-			httpMsgHandler.process(msg);
+			if (msg.getIdReceiver() > 0) {
+				msg.setMsgType(MessageType.EXT);
+				msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+				httpMsgHandler.process(msg);	
+			}
 		} break;
 		
 		default : {
@@ -108,12 +99,6 @@ public class ControllerServlet extends HttpServlet {
 		HttpSession session = req.getSession();		
 		HttpMessageHandler httpMsgHandler = (HttpMessageHandler) req.getServletContext().getAttribute("httpMsgHandler");
 		
-//		int idSender = (int) session.getAttribute("idUser");
-//		int idReceiver = (int) session.getAttribute("idReceiver");
-//		int idChat = (int) session.getAttribute("idChat");
-//		Role roleSender = (Role) session.getAttribute("role");
-//		String nameSender = (String) session.getAttribute("name");
-		
 		int idSender = Integer.parseInt(req.getParameter("id"));
 		int idReceiver = Integer.parseInt(req.getParameter("idReceiver"));
 		int idChat = Integer.parseInt(req.getParameter("idChat"));
@@ -124,7 +109,6 @@ public class ControllerServlet extends HttpServlet {
 		
 		if (roleSender == Role.CLIENT && idReceiver == 0 && httpMsgHandler.isExistAgentInChat(idChat)) {
 			idReceiver = httpMsgHandler.getIdAgentByIdChat(idChat);
-//			session.setAttribute("idReceiver", idReceiver);
 		}
 		
 		if ((roleSender == Role.CLIENT && idReceiver > 0) || 
@@ -155,7 +139,7 @@ public class ControllerServlet extends HttpServlet {
 					}
 					ObjectMapper map = new ObjectMapper();
 					String json = map.writeValueAsString(listMsg);
-					System.out.println("name " + nameSender + ", role " + roleSender + ", json " + json);
+//					System.out.println("name " + nameSender + ", role " + roleSender + ", json " + json);
 					out.write(json);
 				} catch (IOException e) {
 					e.printStackTrace();

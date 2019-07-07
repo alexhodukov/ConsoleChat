@@ -42,9 +42,17 @@
 						$.each(data, function(key, value) {	
 							switch (value.msgType) {
 							case "LEV" :
-								console.log("LEV");
-								addMessageChat(value.nameSender + " : " + value.message);
-								polling = false;
+								if (role == "CLIENT") {
+									polling = false;
+									isFirstMsg = true;
+								}
+								idReceiver = 0;
+								if (isIAmExiting) {
+									console.log("sendMsgLeave");
+									sendMessageLeave();
+								} else {
+									addMessageChat("---SERVICE--- : " + value.message);
+								}
 								break;
 								
 							case "EXT" :
@@ -55,14 +63,12 @@
 										polling = false;
 										isFirstMsg = true;
 									}
-									addMessageChat(value.nameSender + " : " + value.message);
+									addMessageChat("---SERVICE--- : " + value.message);
 									idReceiver = 0;
 								}
-								console.log("EXT " + value.message);
 								break;
 								
 							case "MSG" :
-								console.log("MSG");
 								addMessageChat(value.nameSender + " : " + value.message);
 								if (idReceiver == 0) {
 									idReceiver = value.idSender;
@@ -74,6 +80,9 @@
 								
 							case "SRV" :
 								addMessageChat("---SERVICE--- " + value.message);
+								if (idReceiver == 0) {
+									idReceiver = value.idSender;
+								}
 								break;
 							}
 							
@@ -138,21 +147,63 @@
 			$('#send').click(function() {
 				var message = $('#message').val();
 				
-				if (role == "AGENT" && idReceiver < 1) {
-					addMessageChat(str_no_interlocutor_client);
-				} else {
-					if (message == str_exit) {
-						isIAmExiting = true;	
-					} else {
-						addMessageChat("I am : " + message);
+				switch (role) {
+				case "AGENT" :
+					switch (message) {
+					case str_exit :
+						isIAmExiting = true;
+						sendMessage(message);
+						break;
+						
+					case str_leave : 
+						if (idReceiver == 0) {
+							addMessageChat(str_no_chat);
+						} else {
+							isIAmExiting = true;
+							sendMessage(message);
+						}
+						break;
+						
+					default : 
+						if (idReceiver == 0) {
+							addMessageChat(str_no_interlocutor_client);
+						} else {
+							addMessageChat("I am : " + message);
+							sendMessage(message);
+						}
+						break;
 					}
-					sendMessage(message);
-				}
+					break;
 				
-				$('#message').val("");
-				if (message == str_leave) {
-					leave();
+				case "CLIENT" :
+					switch (message) {
+					case str_exit :
+						if (isFirstMsg) {
+							exit();
+						} else {
+							isIAmExiting = true;
+							sendMessage(message);
+						}
+						break;
+						
+					case str_leave : 
+						if (idReceiver == 0) {
+							addMessageChat(str_no_interlocutor_agent);
+						} else {
+							isIAmExiting = true;
+							sendMessage(message);
+						}
+						break;
+						
+					default : 
+						addMessageChat("I am : " + message);
+						sendMessage(message);
+						break;
+					}
+					break;
 				}
+					
+				$('#message').val("");
 			});
 			
 			function addMessageChat(message) {
@@ -162,13 +213,20 @@
 			}
 			
 			
+			function sendMessageLeave() {
+				var message = "leave";
+				$.ajax({
+					type: 'DELETE',
+					url: 'chat?message=' + message + '&id=' + id +'&idChat=' + idChat + '&role=' + role,
+				});
+			}
+			
+			
 			function sendMessageExit() {
 				var message = "exit";
 				$.ajax({
 					type: 'DELETE',
-					url: 'chat?message=exit&id=' + id +'&idChat=' + idChat + '&role=' + role,
-					data: {message: message
-						},
+					url: 'chat?message=' + message + '&id=' + id +'&idChat=' + idChat + '&role=' + role,
 					complete: function() {
 						window.location.href = "logout";
 					}

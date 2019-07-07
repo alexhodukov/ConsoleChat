@@ -31,12 +31,6 @@ public class RegisterServlet extends HttpServlet {
 			httpMsgHandler.doFreeAgent(idUser);
 		}
 		
-//		session.setAttribute("role", role);
-//		session.setAttribute("name", name);
-//		session.setAttribute("idUser", idUser);
-//		session.setAttribute("idChat", idChat);		
-//		session.setAttribute("idReceiver", 0);
-		
 		req.setAttribute("role", role);
 		req.setAttribute("name", name);
 		req.setAttribute("idUser", idUser);

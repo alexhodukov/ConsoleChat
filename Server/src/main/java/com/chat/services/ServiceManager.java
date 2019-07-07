@@ -310,6 +310,7 @@ public class ServiceManager {
 	public void exit(int idUser, Role role, int idChat) {
 		if (role == Role.AGENT) {
 			listAgents.remove(idUser);
+			log.info("Removing agent id " + idUser);
 			if (idChat > 0) {
 				listChats.get(idChat).disconnectAgent();	
 			}
@@ -317,8 +318,10 @@ public class ServiceManager {
 		
 		if (role == Role.CLIENT) {
 			listClients.remove(idUser);
+			log.info("Removing client id " + idUser);
 			int idAgent = listChats.get(idChat).getIdAgent();
 			listChats.remove(idChat);
+			log.info("Removing chat id " + idChat);
 			if (idAgent > 0) {
 				doFreeAgent(idAgent);	
 			}
