@@ -12,19 +12,33 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
 import com.chat.handlers.HttpMessageHandler;
 import com.chat.model.Message;
+import com.chat.server.Server;
 import com.chat.utils.MessageUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ControllerServlet extends HttpServlet {
 	
+	@Autowired
+	private Server server;
+	
+	private HttpMessageHandler httpMsgHandler;
+	
+	@Override
+	public void init() throws ServletException {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+		httpMsgHandler = server.getHttpMsgHandler();
+	}
+	
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		HttpSession session = req.getSession();		
-		HttpMessageHandler httpMsgHandler = (HttpMessageHandler) req.getServletContext().getAttribute("httpMsgHandler");
 
 		Message msg = new Message(req.getParameter("message"));
 		int idSender = Integer.parseInt(req.getParameter("id"));
@@ -45,8 +59,6 @@ public class ControllerServlet extends HttpServlet {
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {	
-		HttpMessageHandler httpMsgHandler = (HttpMessageHandler) req.getServletContext().getAttribute("httpMsgHandler");
-		
 		Message msg = new Message(req.getParameter("message"));
 		
 		int idSender = Integer.parseInt(req.getParameter("id"));
@@ -69,7 +81,6 @@ public class ControllerServlet extends HttpServlet {
 		
 		switch(msg.getMessage()) {
 		case MessageUtils.LEAVE : {
-			System.out.println("DoPost.Leave");
 			httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.LEV, "leave");
 			
 			msg.setMsgType(MessageType.LEV);
@@ -97,7 +108,6 @@ public class ControllerServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		HttpSession session = req.getSession();		
-		HttpMessageHandler httpMsgHandler = (HttpMessageHandler) req.getServletContext().getAttribute("httpMsgHandler");
 		
 		int idSender = Integer.parseInt(req.getParameter("id"));
 		int idReceiver = Integer.parseInt(req.getParameter("idReceiver"));

@@ -43,9 +43,4 @@
 		<url-pattern>/logout</url-pattern>
 	</servlet-mapping>
 	
-	<listener>  
-    <listener-class>
-        com.chat.web.listeners.ServerListener
-    </listener-class>
-</listener>
 </web-app>

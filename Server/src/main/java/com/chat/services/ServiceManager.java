@@ -46,6 +46,9 @@ public class ServiceManager {
 		this.listHttpMessages = new HashMap<>();
 	}
 	
+	public Map<Integer, Client> getListClients() {
+		return listClients;
+	}
 	
 	public int createAgent(Socket socket, String name) {
 		int id = incIdAgent.incrementAndGet();
