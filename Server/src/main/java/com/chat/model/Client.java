@@ -8,11 +8,14 @@ import java.util.Queue;
 import java.util.logging.Logger;
 
 import com.chat.enums.CommunicationMethod;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Client {
 	private static Logger log = Logger.getLogger(Client.class.getName());
 	
 	private int id;
+	
+	@JsonIgnore
 	private Socket socket; 
 	private String name;
 	private Queue<Message> listUnreadMsg;
@@ -34,7 +37,9 @@ public class Client {
 		this(null, id, name);
 	}
 	
-	
+	public Client() {
+		
+	}
 	
 	public CommunicationMethod getComMethod() {
 		return comMethod;
@@ -96,10 +101,8 @@ public class Client {
 
 	@Override
 	public String toString() {
-		return "Client [name=" + name + "]";
+		return "Client [id=" + id + ", name=" + name + ", listUnreadMsg=" + listUnreadMsg + ", comMethod=" + comMethod
+				+ "]";
 	}
-	
-	
-
 	
 }

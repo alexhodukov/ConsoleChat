@@ -1,8 +1,10 @@
 package com.chat.services;
 
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -17,14 +19,12 @@ import com.chat.model.Agent;
 import com.chat.model.Chat;
 import com.chat.model.Client;
 import com.chat.model.Message;
+import com.chat.utils.IncrementUtil;
 import com.chat.utils.MessageUtils;
 
 public class ServiceManager {
 	private static final int TIME_OUT_WAITING = 30_000;
 	private static Logger log = Logger.getLogger(ServiceManager.class.getName());
-	private AtomicInteger incIdAgent;
-	private AtomicInteger incIdClient;
-	private AtomicInteger incIdChat;
 	private Map<Integer, Agent> listAgents;
 	private Queue<Integer> freeAgents;
 	private Map<Integer, Client> listClients;
@@ -40,25 +40,67 @@ public class ServiceManager {
 		this.listChats = new HashMap<>();
 		this.listMessages = new LinkedList<>();
 		this.execConnAgent = Executors.newCachedThreadPool();
-		this.incIdAgent = new AtomicInteger(10);
-		this.incIdClient = new AtomicInteger();
-		this.incIdChat = new AtomicInteger();
 		this.listHttpMessages = new HashMap<>();
 	}
 	
-	public Map<Integer, Client> getListClients() {
-		return listClients;
+	public List<Client> getListClients() {
+		List<Client> list = new ArrayList<Client>();
+		synchronized (listClients) {
+			for (Client a : listClients.values()) {
+				list.add(a);
+			}
+			return list;	
+		}
+	}
+
+	public List<Agent> getListAgents() {
+		List<Agent> list = new ArrayList<Agent>();
+		synchronized (listAgents) {
+			for (Agent a : listAgents.values()) {
+				list.add(a);
+			}
+			return list;	
+		}
+	}
+	
+	public List<Agent> getFreeAgents() {
+		List<Agent> agents = new ArrayList<>();
+		Integer[] listId = freeAgents.toArray(new Integer[freeAgents.size()]);
+		synchronized (listAgents) {
+			for (Integer id : listId) {
+				if (listAgents.containsKey(id)) {
+					agents.add(listAgents.get(id));	
+				}
+			}
+		}
+		return agents;
+	}
+	
+	public Agent getAgentById(int id) {
+		return listAgents.get(id);
+	}
+	
+	public Client getClientById(int id) {
+		return listClients.get(id);
+	}
+	
+	public Chat getChatById(int id) {
+		return listChats.get(id);
+	}
+	
+	public Integer getCountFreeAgents() {
+		return getFreeAgents().size();
 	}
 	
 	public int createAgent(Socket socket, String name) {
-		int id = incIdAgent.incrementAndGet();
+		int id = IncrementUtil.generateIdUser();
 		Agent agent = new Agent(socket, id, name);
 		registerAgent(agent);
 		return id;
 	}
 	
 	public int createHttpAgent(String name) {
-		int id = incIdAgent.incrementAndGet();
+		int id = IncrementUtil.generateIdUser();
 		Agent agent = new Agent(id, name);		
 		registerAgent(agent);
 		
@@ -69,14 +111,14 @@ public class ServiceManager {
 	}
 	
 	public int createClient(Socket socket, String name) {
-		int id = incIdClient.incrementAndGet();
+		int id = IncrementUtil.generateIdUser();
 		Client client = new Client(socket, id, name);
 		registerClient(client);
 		return id;
 	}
 	
 	public int createHttpClient(String name) {
-		int id = incIdClient.incrementAndGet();
+		int id = IncrementUtil.generateIdUser();
 		Client client = new Client(id, name);
 		registerClient(client);
 		
@@ -87,13 +129,13 @@ public class ServiceManager {
 	}
 	
 	public int createChat(int idClient) {
-		int idChat = incIdChat.incrementAndGet();
+		int idChat = IncrementUtil.generateIdChat();
 		Chat chat = new Chat(idChat, idClient);
 		listChats.put(idChat, chat);
 		return idChat;
 	}
 	
-	private void registerAgent(Agent agent) {
+	public void registerAgent(Agent agent) {
 		synchronized(listAgents) {
 			listAgents.put(agent.getId(), agent);
 			log.info("Registration agent " + agent);
@@ -108,7 +150,7 @@ public class ServiceManager {
 		}
 	}
 	
-	private void registerClient(Client client) {
+	public void registerClient(Client client) {
 		synchronized(listClients) {
 			listClients.put(client.getId(), client);
 			log.info("Registration client " + client);
@@ -156,6 +198,7 @@ public class ServiceManager {
 	}
 	
 	public Queue<Message> getHttpMessages(int idReceiver) {
+		System.out.println("map msg " + listHttpMessages.toString());
 		Queue<Message> que = listHttpMessages.get(idReceiver);
 		Queue<Message> queResult = new LinkedList<>();
 		if (que != null) {

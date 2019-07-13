@@ -76,9 +76,7 @@ public class Agent {
 
 	@Override
 	public String toString() {
-		return name;
+		return "Agent [id=" + id + ", name=" + name + ", comMethod=" + comMethod + "]";
 	}
 
-	
-	
 }

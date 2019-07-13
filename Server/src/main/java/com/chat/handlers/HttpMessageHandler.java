@@ -21,6 +21,37 @@ public class HttpMessageHandler {
 		manager.registerMessage(msg);
 	}
 	
+	public void processMessage(Message msg) {
+		msg.setRoleReceiver(msg.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
+		msg.setComMethod(CommunicationMethod.WEB);
+		
+		if (isNeedConnectAgent(msg)) {
+			connectAgent(msg);
+		}
+		
+		switch(msg.getMessage()) {
+		case MessageUtils.LEAVE : {
+			createServiceMessageLeaveExit(msg, MessageType.LEV, "leave");
+			msg.setMsgType(MessageType.LEV);
+			msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+			manager.registerMessage(msg);
+		} break;
+		
+		case MessageUtils.EXIT : {
+			createServiceMessageLeaveExit(msg, MessageType.EXT, "exit");
+			if (msg.getIdReceiver() > 0) {
+				msg.setMsgType(MessageType.EXT);
+				msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
+				manager.registerMessage(msg);	
+			}
+		} break;
+		
+		default : {
+			manager.registerMessage(msg);
+		} break;
+		}			
+	}
+	
 	public int registerUser(Role role, String name) {
 		int id = 0;
 		switch (role) {
@@ -77,5 +108,9 @@ public class HttpMessageHandler {
 		servMsg.setMsgType(type);
 		System.out.println("servMsg " + servMsg);
 		manager.registerMessage(servMsg);
+	}
+	
+	public boolean isNeedConnectAgent(Message msg) {
+		return msg.getRoleSender() == Role.CLIENT && msg.getIdReceiver() == 0 && !isAgentConnecting(msg.getIdChat());
 	}
 }
