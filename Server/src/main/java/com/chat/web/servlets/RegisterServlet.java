@@ -34,25 +34,29 @@ public class RegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Role role = Role.valueOf(req.getParameter("role").toUpperCase());
 		String name = req.getParameter("name");
-
 		
-		int idChat = 0;
-		int idUser = httpMsgHandler.registerUser(role, name);
-		if (role == Role.CLIENT) {
-			idChat = httpMsgHandler.createChat(idUser);
+		if (name == null || "".equals(name.trim())) {
+			RequestDispatcher disp = req.getRequestDispatcher("/index.jsp");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Name may not be empty or null");
+			disp.include(req, resp);
 		} else {
-			httpMsgHandler.doFreeAgent(idUser);
+			int idChat = 0;
+			int idUser = httpMsgHandler.registerUser(role, name);
+			if (role == Role.CLIENT) {
+				idChat = httpMsgHandler.createChat(idUser);
+			} else {
+				httpMsgHandler.doFreeAgent(idUser);
+			}
+			
+			req.setAttribute("role", role);
+			req.setAttribute("name", name);
+			req.setAttribute("idUser", idUser);
+			req.setAttribute("idChat", idChat);		
+			req.setAttribute("idReceiver", 0);
+			
+	        RequestDispatcher disp = req.getRequestDispatcher("/chat.jsp");
+			disp.forward(req, resp);
 		}
-		
-		req.setAttribute("role", role);
-		req.setAttribute("name", name);
-		req.setAttribute("idUser", idUser);
-		req.setAttribute("idChat", idChat);		
-		req.setAttribute("idReceiver", 0);
-		
-        RequestDispatcher disp = req.getRequestDispatcher("/chat.jsp");
-		disp.forward(req, resp);
-
 	}
 
 }

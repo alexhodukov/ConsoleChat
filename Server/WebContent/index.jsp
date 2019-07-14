@@ -5,21 +5,17 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<script type="text/javascript" src="webjars/jquery/3.3.0/jquery.js"></script>
 	<script type="text/javascript">
-// 		$(document).ready(function() {
-// 			$('#submit').click(function() {
-// 				var name = $('#name').val();
-// 				var role = $('#role option:selected').val();
-// 				$.ajax({
-// 					type: 'POST',
-// 					url: 'register',
-// 					data: {name: name,
-// 						role: role},
-// 					success: function(result) {
-// 						$('#result1').html(result);
-// 					}
-// 				});
-// 			});
-// 		});
+		$(document).ready(function() {
+			$('#submit').click(function(e) {
+				var name = $('#name');
+				name.val(name.val().replace(/\s/g, ""));
+				if (name.val() == "") {
+					e.preventDefault();
+					alert("Type name!")
+				}
+				
+			});
+		});
 	</script>
 	<title>Registration page</title>
 </head>
@@ -39,10 +35,10 @@
 	   </p>
 	   <p>
 	   	<label>Enter name : </label>
-		<input type="text" name="name" id="name"/>
+		<input type="text" name="name" id="name" required/>
 		</p>	
 		
-   <p><input type="submit" value="Отправить" id="submit"></p>
+   <p><input type="submit" value="Register" id="submit"></p>
 	</form>
 
 </body>

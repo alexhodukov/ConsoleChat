@@ -119,7 +119,18 @@
 							polling = true;
 							getMessages();
 						}
-					}
+					},
+					error: function (jqXHR, exception) {				        
+				        if (jqXHR.status == 400) {
+				        	console.log("Message may not be empty");
+				        }
+				        
+				        if (role == "CLIENT" && isFirstMsg) {
+							isFirstMsg = false;
+							polling = true;
+							getMessages();
+						}
+				    }
 				});
 			}
 			
@@ -147,62 +158,66 @@
 			$('#send').click(function() {
 				var message = $('#message').val();
 				
-				switch (role) {
-				case "AGENT" :
-					switch (message) {
-					case str_exit :
-						isIAmExiting = true;
-						sendMessage(message);
-						break;
-						
-					case str_leave : 
-						if (idReceiver == 0) {
-							addMessageChat(str_no_chat);
-						} else {
+				message = message.replace(/\s/g, "");
+				if (message == "") {
+					alert("Type message!")
+				} else {
+					switch (role) {
+					case "AGENT" :
+						switch (message) {
+						case str_exit :
 							isIAmExiting = true;
 							sendMessage(message);
+							break;
+							
+						case str_leave : 
+							if (idReceiver == 0) {
+								addMessageChat(str_no_chat);
+							} else {
+								isIAmExiting = true;
+								sendMessage(message);
+							}
+							break;
+							
+						default : 
+							if (idReceiver == 0) {
+								addMessageChat(str_no_interlocutor_client);
+							} else {
+								addMessageChat("I am : " + message);
+								sendMessage(message);
+							}
+							break;
 						}
 						break;
-						
-					default : 
-						if (idReceiver == 0) {
-							addMessageChat(str_no_interlocutor_client);
-						} else {
+					
+					case "CLIENT" :
+						switch (message) {
+						case str_exit :
+							if (isFirstMsg) {
+								exit();
+							} else {
+								isIAmExiting = true;
+								sendMessage(message);
+							}
+							break;
+							
+						case str_leave : 
+							if (idReceiver == 0) {
+								addMessageChat(str_no_interlocutor_agent);
+							} else {
+								isIAmExiting = true;
+								sendMessage(message);
+							}
+							break;
+							
+						default : 
 							addMessageChat("I am : " + message);
 							sendMessage(message);
+							break;
 						}
 						break;
 					}
-					break;
-				
-				case "CLIENT" :
-					switch (message) {
-					case str_exit :
-						if (isFirstMsg) {
-							exit();
-						} else {
-							isIAmExiting = true;
-							sendMessage(message);
-						}
-						break;
-						
-					case str_leave : 
-						if (idReceiver == 0) {
-							addMessageChat(str_no_interlocutor_agent);
-						} else {
-							isIAmExiting = true;
-							sendMessage(message);
-						}
-						break;
-						
-					default : 
-						addMessageChat("I am : " + message);
-						sendMessage(message);
-						break;
-					}
-					break;
 				}
-					
 				$('#message').val("");
 			});
 			
@@ -210,6 +225,12 @@
 				var chat = $('#chat');
 				chat.val(chat.val() + message + "\n");
 				chat.scrollTop(chat.prop('scrollHeight') - chat.height());
+			}
+			
+			
+			function clearMessageChat() {
+				var chat = $('#chat');
+				chat.val("");
 			}
 			
 			
@@ -252,7 +273,7 @@
 
 	    <p>
 	   	<label>Enter message : </label>
-		<input type="text" name="message" id="message"/>
+		<input type="text" name="message" id="message" required/>
 		</p>	
 		
    <p><input type="button" value="Отправить" id="send"></p>
