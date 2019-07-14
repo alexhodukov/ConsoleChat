@@ -24,29 +24,31 @@ public class MessageHandler {
 		this.manager = manager;
 	}
 
-	public void processIncomingMessage() {
+	public synchronized void processIncomingMessage() {
 		isNeedShowMessage = true;
 		MessageType type = MessageType.valueOf(message.substring(0, 3));
-		message = message.substring(4, message.length());
-		String[] tokens = message.split("_");
+		String src = message.substring(4, message.length());
+		String[] tokens = src.split("_");
+		message = "";
+		for (int i = 5; i < tokens.length; i++) {
+			message += tokens[i];
+		}
 		switch (type) {
 		case REG : {
 			manager.setId(Integer.parseInt(tokens[1]));
 			manager.setIdChat(Integer.parseInt(tokens[2]));
 			manager.setName(tokens[3]);
 			manager.setRole(Role.valueOf(tokens[4]));
-			message = tokens[5];
 		} break;
 		
 		case MSG : {			
 			setInterlocutor(tokens);
-			message = manager.getInterlocutor().getName() + " : " + tokens[5];
+			message = manager.getInterlocutor().getName() + " : " + message;
 		} break;
 		
 		case LEV : 
 		case EXT : {
 			Role role = Role.valueOf(tokens[4]);
-			message = tokens[5];
 			
 			if (role == Role.CLIENT) {
 				manager.setIdChat(0);	
@@ -56,7 +58,6 @@ public class MessageHandler {
 		
 		case SRV : {
 			setInterlocutor(tokens);
-			message = tokens[5];
 		} break;
 		}
 	}
@@ -71,7 +72,7 @@ public class MessageHandler {
 		}
 	}
 	
-	public void processOutgoingMessage(int id, Role role) {
+	public synchronized void processOutgoingMessage(int id, Role role) {
 		isCorrectMessage = true;
 		if (role == Role.GUEST) {
 			String[] tokens = message.split(" ");			
@@ -181,7 +182,7 @@ public class MessageHandler {
 		return isCorrectMessage;
 	}
 	
-	public byte[] getMessageBytes() {
+	public synchronized byte[] getMessageBytes() {
 		byte[] ar = {};
 		try {
 			ar = message.getBytes("UTF-8");

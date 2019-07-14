@@ -16,11 +16,7 @@ public class ManagerClient {
 		this.role = Role.GUEST;
 		this.interlocutor = new Interlocutor();
 	}
-	
-	public synchronized boolean isGuest() {
-		return role == Role.GUEST;
-	}
-	
+
 	public void disconnectInterlucutor() {
 		interlocutor.disconnect();
 	}
@@ -36,39 +32,39 @@ public class ManagerClient {
 		}
 	}
 
-	public synchronized int getId() {
+	public int getId() {
 		return id;
 	}
 
-	public synchronized void setId(int id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
-	public synchronized Role getRole() {
+	public Role getRole() {
 		return role;
 	}
 
-	public synchronized void setRole(Role role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
 
-	public synchronized int getIdChat() {
+	public int getIdChat() {
 		return idChat;
 	}
 
-	public synchronized void setIdChat(int idChat) {
+	public void setIdChat(int idChat) {
 		this.idChat = idChat;
 	}
 
-	public synchronized String getName() {
+	public String getName() {
 		return name;
 	}
 
-	public synchronized void  setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
-	public synchronized Interlocutor getInterlocutor() {
+	public Interlocutor getInterlocutor() {
 		return interlocutor;
 	}
 }
