@@ -112,13 +112,8 @@ public class ServiceManager {
 	}
 	
 	public int createHttpAgent(String name) {
-		int id = IncrementUtil.generateIdUser();
-		Agent agent = new Agent(id, name);		
-		registerAgent(agent);
-		
-		Queue<Message> listMessages = new LinkedList<>();
-		listHttpMessages.put(id, listMessages);
-		
+		int id = createAgent(null, name);
+		createListMessagesForHttpUser(id);
 		return id;
 	}
 	
@@ -130,14 +125,14 @@ public class ServiceManager {
 	}
 	
 	public int createHttpClient(String name) {
-		int id = IncrementUtil.generateIdUser();
-		Client client = new Client(id, name);
-		registerClient(client);
-		
+		int id = createClient(null, name);
+		createListMessagesForHttpUser(id);
+		return id;
+	}
+	
+	public void createListMessagesForHttpUser(int id) {
 		Queue<Message> listMessages = new LinkedList<>();
 		listHttpMessages.put(id, listMessages);
-		
-		return id;
 	}
 	
 	public int createChat(int idClient) {
