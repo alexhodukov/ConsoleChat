@@ -18,6 +18,8 @@ public class Client {
 	@JsonIgnore
 	private Socket socket; 
 	private String name;
+	
+	@JsonIgnore
 	private Queue<Message> listUnreadMsg;
 	private CommunicationMethod comMethod;
 	
@@ -79,6 +81,7 @@ public class Client {
 		return listUnreadMsg;
 	}
 	
+	@JsonIgnore
 	public boolean isEmptyListMsg() {
 		return listUnreadMsg.isEmpty();
 	}

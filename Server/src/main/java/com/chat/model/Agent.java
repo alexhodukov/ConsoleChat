@@ -6,13 +6,17 @@ import java.net.Socket;
 import java.util.logging.Logger;
 
 import com.chat.enums.CommunicationMethod;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Agent {
 	private static Logger log = Logger.getLogger(Agent.class.getName());
 	
 	private int id;
+	
+	@JsonIgnore
 	private Socket socket; 
 	private String name;
+	
 	private CommunicationMethod comMethod;
 	
 	public Agent(Socket socket, int id, String name) {

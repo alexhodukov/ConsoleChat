@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,8 @@ public class ChatController {
 	}
 	
 	@GetMapping("/agents")
-	public ResponseEntity<List<Agent>> listAllAgents(@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+	public ResponseEntity<List<Agent>> listAllAgents(
+			@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "3") int pageSize) {
 		
 		List<Agent> allAgents = server.getManager().getListAgents();
@@ -70,7 +72,8 @@ public class ChatController {
 	}
 	
 	@GetMapping("/freeAgents")
-	public ResponseEntity<List<Agent>> listFreeAgents(@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+	public ResponseEntity<List<Agent>> listFreeAgents(
+			@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "3") int pageSize) {
 		
 		List<Agent> allAgents = server.getManager().getFreeAgents();
@@ -103,7 +106,8 @@ public class ChatController {
 	}
 	
 	@GetMapping("/clients")
-	public ResponseEntity<List<Client>> listAllClients(@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+	public ResponseEntity<List<Client>> listAllClients(
+			@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "3") int pageSize) {
 		
 		List<Client> allClients = server.getManager().getListClients();
@@ -127,7 +131,8 @@ public class ChatController {
 	}
 	
 	@GetMapping("/publicChats")
-	public ResponseEntity<List<Chat>> listAllPublicChats(@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+	public ResponseEntity<List<Chat>> listAllPublicChats(
+			@RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "3") int pageSize) {
 		
 		List<Chat> allChats = server.getManager().getPublicChats();

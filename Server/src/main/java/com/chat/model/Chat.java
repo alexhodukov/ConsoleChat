@@ -1,6 +1,7 @@
 package com.chat.model;
 
 public class Chat {
+	
 	private int id;
 	private int idClient;
 	private int idAgent;

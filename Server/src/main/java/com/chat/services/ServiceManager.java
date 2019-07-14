@@ -76,6 +76,18 @@ public class ServiceManager {
 		return agents;
 	}
 	
+	public List<Chat> getPublicChats() {
+		List<Chat> list = new ArrayList<Chat>();
+		synchronized (listChats) {
+			for (Chat chat : listChats.values()) {
+				if (chat.getIdAgent() > 0) {
+					list.add(chat);
+				}
+			}
+			return list;	
+		}
+	}
+	
 	public Agent getAgentById(int id) {
 		return listAgents.get(id);
 	}

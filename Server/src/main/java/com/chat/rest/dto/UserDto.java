@@ -1,6 +1,10 @@
-package com.chat.dto;
+package com.chat.rest.dto;
+
+import javax.validation.constraints.NotBlank;
 
 public class UserDto {
+	
+	@NotBlank(message = "Name may not be null")
 	private String name;
 	
 	public UserDto() {

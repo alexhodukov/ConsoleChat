@@ -2,11 +2,16 @@ package com.chat.model;
 
 import java.io.UnsupportedEncodingException;
 
+import javax.validation.constraints.NotBlank;
+
 import com.chat.enums.CommunicationMethod;
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Message {
+	
+	@NotBlank(message = "Message may not be null")
 	private String message;
 	private int idReceiver;
 	private int idSender;
@@ -14,6 +19,8 @@ public class Message {
 	private Role roleReceiver;
 	private Role roleSender;
 	private String nameReceiver;
+	
+	@NotBlank(message = "nameSender may not be null")
 	private String nameSender;
 	private boolean isErrorMessage;
 	private MessageType msgType;
@@ -33,6 +40,7 @@ public class Message {
 		return message;
 	}
 	
+	@JsonIgnore
 	public byte[] getMessageBytes() {
 		byte[] ar = {};
 		try {
