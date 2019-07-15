@@ -31,6 +31,9 @@ public class MessageHandler {
 		String[] tokens = src.split("_");
 		message = "";
 		for (int i = 5; i < tokens.length; i++) {
+			if (i > 5) {
+				message += "_";
+			}
 			message += tokens[i];
 		}
 		switch (type) {

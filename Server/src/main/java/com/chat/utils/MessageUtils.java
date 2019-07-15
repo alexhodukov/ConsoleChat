@@ -26,6 +26,9 @@ public class MessageUtils {
 		
 		String message = "";
 		for (int i = 6; i < tokens.length; i++) {
+			if (i > 6) {
+				message += "_";
+			}
 			message += tokens[i];
 		}
 	
