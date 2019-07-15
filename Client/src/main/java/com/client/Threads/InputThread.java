@@ -1,15 +1,18 @@
-package com.client;
+package com.client.Threads;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientInput implements Runnable {
+import com.client.handlers.MessageHandler;
+import com.client.model.ManagerClient;
+
+public class InputThread implements Runnable {
 	private ManagerClient manager;
 	private BufferedReader reader;
 	private Socket socket;
 	
-	public ClientInput(ManagerClient manager, BufferedReader reader, Socket socket) {
+	public InputThread(ManagerClient manager, BufferedReader reader, Socket socket) {
 		this.manager = manager;
 		this.reader = reader;
 		this.socket = socket;

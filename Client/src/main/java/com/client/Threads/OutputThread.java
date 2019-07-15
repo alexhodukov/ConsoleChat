@@ -1,14 +1,17 @@
-package com.client;
+package com.client.Threads;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class ClientOutput implements Runnable {
+import com.client.handlers.MessageHandler;
+import com.client.model.ManagerClient;
+
+public class OutputThread implements Runnable {
 	private ManagerClient manager;
 	private BufferedOutputStream bufOut;
 	
-	public ClientOutput(ManagerClient manager, BufferedOutputStream bufOut) {
+	public OutputThread(ManagerClient manager, BufferedOutputStream bufOut) {
 		this.manager = manager;
 		this.bufOut = bufOut;
 	}

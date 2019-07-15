@@ -1,6 +1,10 @@
-package com.client;
+package com.client.handlers;
 
 import java.io.UnsupportedEncodingException;
+
+import com.client.enums.MessageType;
+import com.client.enums.Role;
+import com.client.model.ManagerClient;
 
 public class MessageHandler {
 	private static final String UNSUP_COMMAND = "Unsupported command, please, write the command correctly!";

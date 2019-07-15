@@ -1,4 +1,4 @@
-package com.client;
+package com.client.Runner;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,6 +11,10 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import com.client.Threads.InputThread;
+import com.client.Threads.OutputThread;
+import com.client.model.ManagerClient;
+
 public class ClientRunner {
 
 	public static void main(String[] args) {		
@@ -20,9 +24,9 @@ public class ClientRunner {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 			
 			ManagerClient manager = new ManagerClient(socket);			
-			Thread tInput = new Thread(new ClientInput(manager, reader, socket));
+			Thread tInput = new Thread(new InputThread(manager, reader, socket));
 			tInput.start();
-			Thread tOutput = new Thread(new ClientOutput(manager, bufOut));
+			Thread tOutput = new Thread(new OutputThread(manager, bufOut));
 			tOutput.start();
 			
 			try {

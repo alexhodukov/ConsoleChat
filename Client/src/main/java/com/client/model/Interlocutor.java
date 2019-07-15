@@ -1,4 +1,6 @@
-package com.client;
+package com.client.model;
+
+import com.client.enums.Role;
 
 public class Interlocutor {
 	private int id;

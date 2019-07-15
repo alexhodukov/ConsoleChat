@@ -1,7 +1,9 @@
-package com.client;
+package com.client.model;
 
 import java.io.IOException;
 import java.net.Socket;
+
+import com.client.enums.Role;
 
 public class ManagerClient {
 	private Socket socket;
