@@ -3,16 +3,22 @@ package com.chat.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.log4j.Logger;
 
 import com.chat.handlers.HttpMessageHandler;
 import com.chat.handlers.IncomingSocketHandler;
 import com.chat.handlers.MessageHandler;
 import com.chat.services.ServiceManager;
 
-public class Server {
+public class Server {	
 	private ServiceManager manager;
 	private MessageHandler msgHandler;
 	private HttpMessageHandler httpMsgHandler;
+	
+	private static final Logger logger = Logger.getLogger(Server.class);
 
 	public Server() {
 		this.manager = new ServiceManager();
@@ -21,6 +27,7 @@ public class Server {
 	}
 
 	public void start() {
+		logger.info("Server started. It's logger");
 		try (ServerSocket s = new ServerSocket(8282)) {
 			System.out.println("Server started!");
 			
@@ -31,7 +38,8 @@ public class Server {
 			};
 			Thread sending = new Thread(r);
 			sending.setName("Thread sending messages.");
-			sending.start();
+			ExecutorService execMessage = Executors.newCachedThreadPool();
+			execMessage.execute(sending);
 			
 			while (true) {
 				Socket incoming = s.accept();

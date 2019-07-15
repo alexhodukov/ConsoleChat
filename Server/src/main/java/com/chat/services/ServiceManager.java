@@ -19,12 +19,14 @@ import com.chat.model.Agent;
 import com.chat.model.Chat;
 import com.chat.model.Client;
 import com.chat.model.Message;
+import com.chat.server.Server;
 import com.chat.utils.IncrementUtil;
 import com.chat.utils.MessageUtils;
 
 public class ServiceManager {
+	private static final Logger logger = Logger.getLogger(ServiceManager.class.getName());
+	
 	private static final int TIME_OUT_WAITING = 30_000;
-	private static Logger log = Logger.getLogger(ServiceManager.class.getName());
 	private Map<Integer, Agent> listAgents;
 	private Queue<Integer> freeAgents;
 	private Map<Integer, Client> listClients;
@@ -145,14 +147,14 @@ public class ServiceManager {
 	public void registerAgent(Agent agent) {
 		synchronized(listAgents) {
 			listAgents.put(agent.getId(), agent);
-			log.info("Registration agent " + agent);
+			logger.info("Registration agent " + agent);
 		}
 	}
 	
 	public void doFreeAgent(int idAgent) {
 		synchronized (freeAgents) {
 			freeAgents.add(idAgent);
-			log.info("Agent " + listAgents.get(idAgent).getName() + " is free.");
+			logger.info("Agent " + listAgents.get(idAgent).getName() + " is free.");
 			freeAgents.notifyAll();	
 		}
 	}
@@ -160,7 +162,7 @@ public class ServiceManager {
 	public void registerClient(Client client) {
 		synchronized(listClients) {
 			listClients.put(client.getId(), client);
-			log.info("Registration client " + client);
+			logger.info("Registration client " + client);
 		}
 	}
 	
@@ -171,7 +173,7 @@ public class ServiceManager {
 		
 		if (roleSender == Role.CLIENT && idReceiver == 0) {
 			listClients.get(msg.getIdSender()).addMsg(msg);
-			log.info("Register message in unread listMessages " + msg.getMessage());
+			logger.info("Register message in unread listMessages " + msg.getMessage());
 		} else {
 			if (isEqualsCommunicationMethod(msg.getMsgType(), roleReceiver, idReceiver, CommunicationMethod.WEB)) {
 				Queue<Message> que = listHttpMessages.get(idReceiver);
@@ -179,7 +181,7 @@ public class ServiceManager {
 					synchronized (que) {
 						if (que != null) {
 							que.add(msg);
-							log.info("Register message in HTTP list " + msg.getMessage());
+							logger.info("Register message in HTTP list " + msg.getMessage());
 							que.notifyAll();
 						}
 						
@@ -188,7 +190,7 @@ public class ServiceManager {
 			} else {
 				synchronized (listMessages) {
 					listMessages.add(msg);
-					log.info("Register message in CONSOLE list " + msg.getMessage());
+					logger.info("Register message in CONSOLE list " + msg.getMessage());
 					listMessages.notifyAll();
 				}
 				
@@ -256,7 +258,7 @@ public class ServiceManager {
 				if (!listMessages.isEmpty()) {
 					Message msg = listMessages.poll();
 					
-					log.info("Attempt send message " + msg.getMessage());
+					logger.info("Attempt send message " + msg.getMessage());
 					
 					int idReceiver = msg.getIdReceiver();
 					switch (msg.getRoleReceiver()) {
@@ -323,7 +325,7 @@ public class ServiceManager {
 				Message msgAgentFound = MessageUtils.createMessageClientWhenWaiting(msg, agent, agent.getName() + " " + MessageUtils.AGENT_FOUND);
 				registerMessage(msgAgentFound);
 				
-				log.info("Starting conversation between agent " + agent.getName() + " and client " + msg.getNameSender() + ".");
+				logger.info("Starting conversation between agent " + agent.getName() + " and client " + msg.getNameSender() + ".");
 				
 				getUnreadMessages(idChat, agent);	
 			} else {
@@ -341,7 +343,7 @@ public class ServiceManager {
 		while (!client.isEmptyListMsg()) {
 			Message m = client.nextUnreadMsg();
 			m.setIdReceiver(agent.getId());
-			log.info("Unread message " + m.getMessage() + " will be registered in the general heap. Name " + listAgents.get(agent.getId()).getName());
+			logger.info("Unread message " + m.getMessage() + " will be registered in the general heap. Name " + listAgents.get(agent.getId()).getName());
 			registerMessage(m);
 		}
 	}
@@ -363,7 +365,7 @@ public class ServiceManager {
 	public void exit(int idUser, Role role, int idChat) {
 		if (role == Role.AGENT) {
 			listAgents.remove(idUser);
-			log.info("Removing agent id " + idUser);
+			logger.info("Removing agent id " + idUser);
 			if (idChat > 0) {
 				listChats.get(idChat).disconnectAgent();	
 			}
@@ -371,10 +373,10 @@ public class ServiceManager {
 		
 		if (role == Role.CLIENT) {
 			listClients.remove(idUser);
-			log.info("Removing client id " + idUser);
+			logger.info("Removing client id " + idUser);
 			int idAgent = listChats.get(idChat).getIdAgent();
 			listChats.remove(idChat);
-			log.info("Removing chat id " + idChat);
+			logger.info("Removing chat id " + idChat);
 			if (idAgent > 0) {
 				doFreeAgent(idAgent);	
 			}

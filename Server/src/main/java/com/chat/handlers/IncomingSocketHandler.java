@@ -6,11 +6,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.logging.Logger;
 
-public class IncomingSocketHandler implements Runnable {
-	private static Logger log = Logger.getLogger(IncomingSocketHandler.class.getName());
-	
+public class IncomingSocketHandler implements Runnable {	
 	private Socket socket;
 	private MessageHandler msgHandler;
 	private boolean isExit;

@@ -1,5 +1,8 @@
 package com.chat.rest.config;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +23,8 @@ public class AppConfig {
 		Thread t = new Thread(r);
 		t.setName("Thread server starting");
 		t.setDaemon(true);
-		t.start();
+		ExecutorService execServer = Executors.newCachedThreadPool();
+		execServer.execute(t);
 		return server;
 	}
 	
