@@ -54,7 +54,6 @@ public class Message {
 	public void convertToWeb() {
 		if (comMethod == CommunicationMethod.CONSOLE) {
 			String[] tokens = message.split("_");
-			System.out.println("message " + message);
 			message = tokens[6];	
 		}
 	}
@@ -166,6 +165,67 @@ public class Message {
 				+ idChat + ", roleReceiver=" + roleReceiver + ", roleSender=" + roleSender + ", nameReceiver="
 				+ nameReceiver + ", nameSender=" + nameSender + ", isErrorMessage=" + isErrorMessage + ", msgType="
 				+ msgType + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((comMethod == null) ? 0 : comMethod.hashCode());
+		result = prime * result + idChat;
+		result = prime * result + idReceiver;
+		result = prime * result + idSender;
+		result = prime * result + (isErrorMessage ? 1231 : 1237);
+		result = prime * result + ((message == null) ? 0 : message.hashCode());
+		result = prime * result + ((msgType == null) ? 0 : msgType.hashCode());
+		result = prime * result + ((nameReceiver == null) ? 0 : nameReceiver.hashCode());
+		result = prime * result + ((nameSender == null) ? 0 : nameSender.hashCode());
+		result = prime * result + ((roleReceiver == null) ? 0 : roleReceiver.hashCode());
+		result = prime * result + ((roleSender == null) ? 0 : roleSender.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Message other = (Message) obj;
+		if (comMethod != other.comMethod)
+			return false;
+		if (idChat != other.idChat)
+			return false;
+		if (idReceiver != other.idReceiver)
+			return false;
+		if (idSender != other.idSender)
+			return false;
+		if (isErrorMessage != other.isErrorMessage)
+			return false;
+		if (message == null) {
+			if (other.message != null)
+				return false;
+		} else if (!message.equals(other.message))
+			return false;
+		if (msgType != other.msgType)
+			return false;
+		if (nameReceiver == null) {
+			if (other.nameReceiver != null)
+				return false;
+		} else if (!nameReceiver.equals(other.nameReceiver))
+			return false;
+		if (nameSender == null) {
+			if (other.nameSender != null)
+				return false;
+		} else if (!nameSender.equals(other.nameSender))
+			return false;
+		if (roleReceiver != other.roleReceiver)
+			return false;
+		if (roleSender != other.roleSender)
+			return false;
+		return true;
 	}
 
 }

@@ -27,10 +27,8 @@ public class Server {
 	}
 
 	public void start() {
-		logger.info("Server started. It's logger");
 		try (ServerSocket s = new ServerSocket(8282)) {
-			System.out.println("Server started!");
-			
+			logger.info("Server started");
 			Runnable r = () -> {
 				while (true) {
 					manager.sendMessage();	
@@ -63,6 +61,4 @@ public class Server {
 	public HttpMessageHandler getHttpMsgHandler() {
 		return httpMsgHandler;
 	}
-	
-	
 }

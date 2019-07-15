@@ -205,7 +205,6 @@ public class ServiceManager {
 	}
 	
 	public Queue<Message> getHttpMessages(int idReceiver) {
-		System.out.println("map msg " + listHttpMessages.toString());
 		Queue<Message> que = listHttpMessages.get(idReceiver);
 		Queue<Message> queResult = new LinkedList<>();
 		if (que != null) {

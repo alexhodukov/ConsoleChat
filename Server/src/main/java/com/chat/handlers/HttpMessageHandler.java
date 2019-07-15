@@ -16,11 +16,6 @@ public class HttpMessageHandler {
 		this.manager = manager;
 	}
 	
-	public void process(Message msg) {
-		msg.setComMethod(CommunicationMethod.WEB);
-		manager.registerMessage(msg);
-	}
-	
 	public void processMessage(Message msg) {
 		msg.setRoleReceiver(msg.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
 		msg.setComMethod(CommunicationMethod.WEB);
@@ -106,7 +101,6 @@ public class HttpMessageHandler {
 	public void createServiceMessageLeaveExit(Message msgOrigin, MessageType type, String src) {
 		Message servMsg = MessageUtils.createServiceMessageLeaveExit(msgOrigin, src);
 		servMsg.setMsgType(type);
-		System.out.println("servMsg " + servMsg);
 		manager.registerMessage(servMsg);
 	}
 	

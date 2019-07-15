@@ -10,7 +10,6 @@ import java.util.Scanner;
 public class IncomingSocketHandler implements Runnable {	
 	private Socket socket;
 	private MessageHandler msgHandler;
-	private boolean isExit;
 	
 	public IncomingSocketHandler(Socket socket, MessageHandler msgHandler) {
 		this.socket = socket;
@@ -29,32 +28,9 @@ public class IncomingSocketHandler implements Runnable {
 				msgHandler.processMessage(line, socket);
 			}
 			
-			waitThread();
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
 	}
-	
-	private synchronized void waitThread() {
-		while (!isExit) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-		}
-	}
-	
-	public synchronized void terminatedChat() {
-		isExit = true;
-		notify();
-	}
-
-	public Socket getSocket() {
-		return socket;
-	}
-
-	
 }

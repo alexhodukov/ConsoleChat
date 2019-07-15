@@ -35,4 +35,31 @@ public class Client extends User {
 	public String toString() {
 		return "Client " + super.toString() + "[listUnreadMsg=" + listUnreadMsg + "]";
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((listUnreadMsg == null) ? 0 : listUnreadMsg.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Client other = (Client) obj;
+		if (listUnreadMsg == null) {
+			if (other.listUnreadMsg != null)
+				return false;
+		} else if (!listUnreadMsg.equals(other.listUnreadMsg))
+			return false;
+		return true;
+	}
+	
+	
 }

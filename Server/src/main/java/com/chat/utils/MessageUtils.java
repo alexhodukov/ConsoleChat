@@ -10,8 +10,8 @@ public class MessageUtils {
 	public static final String SEARCHING_AGENT = "Now will be a search free agent for you";
 	public static final String AGENT_FOUND = "connected to the chat";
 	public static final String REG_SUCCESS = "Registration successful!";
-	public static final String LEAVE = "/l";
-	public static final String EXIT = "/e";
+	public static final String LEAVE = "/leave";
+	public static final String EXIT = "/exit";
 	public static final String LEAVE_CHAT = "has left this chat";
 	
 	public static void createMessageByParseString(Message msg) {

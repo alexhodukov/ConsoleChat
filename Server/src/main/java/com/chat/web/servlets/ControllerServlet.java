@@ -77,47 +77,15 @@ public class ControllerServlet extends HttpServlet {
 			msg.setIdChat(idChat);
 			msg.setRoleSender(roleSender);
 			msg.setNameSender(nameSender);
-			msg.setRoleReceiver(msg.getRoleSender() == Role.AGENT ? Role.CLIENT : Role.AGENT);
-			
-			if (roleSender == Role.CLIENT && idReceiver == 0 && !httpMsgHandler.isAgentConnecting(idChat)) {
-				httpMsgHandler.connectAgent(msg);
-			}
-			
-			switch(msg.getMessage()) {
-			case MessageUtils.LEAVE : {
-				httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.LEV, "leave");
-				
-				msg.setMsgType(MessageType.LEV);
-				msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
-				httpMsgHandler.process(msg);
-			} break;
-			
-			case MessageUtils.EXIT : {
-				httpMsgHandler.createServiceMessageLeaveExit(msg, MessageType.EXT, "exit");
-				
-				if (msg.getIdReceiver() > 0) {
-					msg.setMsgType(MessageType.EXT);
-					msg.setMessage(msg.getNameSender() + " " + MessageUtils.LEAVE_CHAT);
-					httpMsgHandler.process(msg);	
-				}
-			} break;
-			
-			default : {
-				httpMsgHandler.process(msg);
-			} break;
-			}		
+	
+			httpMsgHandler.processMessage(msg);
 		}
 	}
 	
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		HttpSession session = req.getSession();		
-		
 		int idSender = Integer.parseInt(req.getParameter("id"));
-		int idReceiver = Integer.parseInt(req.getParameter("idReceiver"));
-		int idChat = Integer.parseInt(req.getParameter("idChat"));
-		Role roleSender = Role.valueOf(req.getParameter("role"));
 
 		AsyncContext async = req.startAsync();
 		async.getResponse().setContentType("application/json");
