@@ -110,6 +110,7 @@ public class MessageHandler {
 				} else {
 					createLeaveMessage();
 					manager.disconnectInterlucutor();
+					System.out.println("You have completed the conversation");
 				}
 			} break;
 			

@@ -24,6 +24,7 @@ public class InputThread implements Runnable {
 		String line;
 		try {
 			while (!socket.isClosed() && (line = reader.readLine()) != null) {
+				System.out.println("line " + line);
 				MessageHandler msgHd = new MessageHandler(line, manager);
 				msgHd.processIncomingMessage();
 				if (msgHd.isNeedShowMessage()) {

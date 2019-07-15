@@ -54,7 +54,13 @@ public class Message {
 	public void convertToWeb() {
 		if (comMethod == CommunicationMethod.CONSOLE) {
 			String[] tokens = message.split("_");
-			message = tokens[6];	
+			message = "";
+			for (int i = 6; i < tokens.length; i++) {
+				if (i > 6) {
+					message += "_";
+				}
+				message += tokens[i];
+			}
 		}
 	}
 	

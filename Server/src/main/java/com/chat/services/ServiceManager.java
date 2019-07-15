@@ -11,7 +11,8 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 import com.chat.enums.CommunicationMethod;
 import com.chat.enums.MessageType;
@@ -24,7 +25,7 @@ import com.chat.utils.IncrementUtil;
 import com.chat.utils.MessageUtils;
 
 public class ServiceManager {
-	private static final Logger logger = Logger.getLogger(ServiceManager.class.getName());
+	private static final Logger logger = Logger.getLogger(ServiceManager.class);
 	
 	private static final int timeOutWaiting = 30_000;
 	private static final int initCountFreeAgents = 50;
@@ -154,7 +155,6 @@ public class ServiceManager {
 	public void doFreeAgent(int idAgent) {
 		synchronized (freeAgents) {
 			freeAgents.add(idAgent);
-			logger.info("Agent " + listAgents.get(idAgent).getName() + " is free.");
 			freeAgents.notifyAll();	
 		}
 	}
@@ -356,15 +356,19 @@ public class ServiceManager {
 				doFreeAgent(idAgent);	
 			}
 		}
-		listChats.get(idChat).disconnectAgent();
+		Chat chat = listChats.get(idChat);
+		if (chat != null) {
+			chat.disconnectAgent();
+		}
 	}
 	
 	public void exit(int idUser, Role role, int idChat) {
 		if (role == Role.AGENT) {
 			listAgents.remove(idUser);
 			logger.info("Removing agent id " + idUser);
-			if (idChat > 0) {
-				listChats.get(idChat).disconnectAgent();	
+			Chat chat = listChats.get(idChat);
+			if (chat != null) {
+				chat.disconnectAgent();
 			}
 		}
 		
