@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -26,6 +27,7 @@ import com.chat.utils.MessageUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ControllerServlet extends HttpServlet {
+	private static final Logger logger = Logger.getLogger(ControllerServlet.class);
 	
 	@Autowired
 	private Server server;
@@ -102,7 +104,7 @@ public class ControllerServlet extends HttpServlet {
 				String json = map.writeValueAsString(listMsg);
 				out.write(json);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.warn("Something happened with writer response", e);
 			}
 			async.complete();
 		};

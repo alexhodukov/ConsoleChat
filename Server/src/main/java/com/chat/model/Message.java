@@ -4,12 +4,16 @@ import java.io.UnsupportedEncodingException;
 
 import javax.validation.constraints.NotBlank;
 
+import org.apache.log4j.Logger;
+
 import com.chat.enums.CommunicationMethod;
 import com.chat.enums.MessageType;
 import com.chat.enums.Role;
+import com.chat.server.Server;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Message {
+	private static final Logger logger = Logger.getLogger(Message.class);
 	
 	@NotBlank(message = "Message may not be null")
 	private String message;
@@ -46,7 +50,7 @@ public class Message {
 		try {
 			ar = message.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.warn("UnsupportedEncodingException", e);
 		}
 		return ar;
 	}

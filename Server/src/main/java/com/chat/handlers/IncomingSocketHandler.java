@@ -7,7 +7,11 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import org.apache.log4j.Logger;
+
 public class IncomingSocketHandler implements Runnable {	
+	private static final Logger logger = Logger.getLogger(IncomingSocketHandler.class);
+	
 	private Socket socket;
 	private MessageHandler msgHandler;
 	
@@ -30,7 +34,7 @@ public class IncomingSocketHandler implements Runnable {
 			
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("Socket is closed", e);
 		} 
 	}
 }

@@ -73,7 +73,7 @@ public class User {
 			bufOut.flush();
 			logger.info("Message " + msg.getMessage() + " sent to id " + id + ", name " + name);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("Occur error with socket", e);
 		}
 	}
 

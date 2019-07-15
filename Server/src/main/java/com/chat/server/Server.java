@@ -46,7 +46,7 @@ public class Server {
 				t.start();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Occurs some error with socket", e);
 		}
 	}
 
