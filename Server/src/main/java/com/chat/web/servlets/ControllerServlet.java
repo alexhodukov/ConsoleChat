@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
@@ -139,7 +141,7 @@ public class ControllerServlet extends HttpServlet {
 		
 		Thread t = new Thread(r);
 		t.setName("Thread async servlet");
-//		t.setDaemon(true);
-		async.start(t);
+		ExecutorService execAsync = Executors.newCachedThreadPool();
+		execAsync.execute(t);
 	}
 }
