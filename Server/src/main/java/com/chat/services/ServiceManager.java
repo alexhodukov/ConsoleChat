@@ -2,14 +2,15 @@ package com.chat.services;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import com.chat.enums.CommunicationMethod;
@@ -19,14 +20,15 @@ import com.chat.model.Agent;
 import com.chat.model.Chat;
 import com.chat.model.Client;
 import com.chat.model.Message;
-import com.chat.server.Server;
 import com.chat.utils.IncrementUtil;
 import com.chat.utils.MessageUtils;
 
 public class ServiceManager {
 	private static final Logger logger = Logger.getLogger(ServiceManager.class.getName());
 	
-	private static final int TIME_OUT_WAITING = 30_000;
+	private static final int timeOutWaiting = 30_000;
+	private static final int initCountFreeAgents = 50;
+	private static final int initCountMessages = 200;
 	private Map<Integer, Agent> listAgents;
 	private Queue<Integer> freeAgents;
 	private Map<Integer, Client> listClients;
@@ -36,13 +38,13 @@ public class ServiceManager {
 	private Map<Integer, Queue<Message>> listHttpMessages;
 	
 	public ServiceManager() {
-		this.listAgents = new HashMap<>();
-		this.freeAgents = new LinkedList<>();
-		this.listClients = new HashMap<>();
-		this.listChats = new HashMap<>();
-		this.listMessages = new LinkedList<>();
+		this.listAgents = Collections.synchronizedMap(new HashMap<>());
+		this.freeAgents = new ArrayBlockingQueue<>(initCountFreeAgents);
+		this.listClients = Collections.synchronizedMap(new HashMap<>());
+		this.listChats = Collections.synchronizedMap(new HashMap<>());
+		this.listMessages = new ArrayBlockingQueue<>(initCountMessages);
 		this.execConnAgent = Executors.newCachedThreadPool();
-		this.listHttpMessages = new HashMap<>();
+		this.listHttpMessages = Collections.synchronizedMap(new HashMap<>());
 	}
 	
 	public List<Client> getListClients() {
@@ -145,10 +147,8 @@ public class ServiceManager {
 	}
 	
 	public void registerAgent(Agent agent) {
-		synchronized(listAgents) {
-			listAgents.put(agent.getId(), agent);
-			logger.info("Registration agent " + agent);
-		}
+		listAgents.put(agent.getId(), agent);
+		logger.info("Registration agent " + agent);
 	}
 	
 	public void doFreeAgent(int idAgent) {
@@ -160,10 +160,8 @@ public class ServiceManager {
 	}
 	
 	public void registerClient(Client client) {
-		synchronized(listClients) {
-			listClients.put(client.getId(), client);
-			logger.info("Registration client " + client);
-		}
+		listClients.put(client.getId(), client);
+		logger.info("Registration client " + client);
 	}
 	
 	public void registerMessage(Message msg) {
@@ -215,7 +213,7 @@ public class ServiceManager {
 				if (que != null) {
 					if (que.isEmpty()) {
 						try {
-							que.wait(TIME_OUT_WAITING);
+							que.wait(timeOutWaiting);
 							while (!que.isEmpty()) {
 								queResult.add(que.poll());
 							}
