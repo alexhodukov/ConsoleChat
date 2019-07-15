@@ -19,8 +19,8 @@
 			var str_no_interlocutor_agent = "You can't leave this chat, because you haven't an agent for conversation!";
 			var str_no_interlocutor_client = "You haven't a client for conversation. Your message isn't sent!";
 			var str_no_chat = "You aren't in any chat!";
-			var str_exit = "/e";
-			var str_leave = "/l";
+			var str_exit = "/exit";
+			var str_leave = "/leave";
 			
 			var isIAmExiting = false;
 			var isFirstMsg = true;

@@ -8,11 +8,11 @@ import com.client.model.ManagerClient;
 
 public class MessageHandler {
 	private static final String UNSUP_COMMAND = "Unsupported command, please, write the command correctly!";
-	private static final String REGISTER = "/r";
-	private static final String AGENT = "a";
-	private static final String CLIENT = "c";
-	private static final String EXIT = "/e";
-	private static final String LEAVE = "/l";
+	private static final String REGISTER = "/register";
+	private static final String AGENT = "agent";
+	private static final String CLIENT = "client";
+	private static final String EXIT = "/exit";
+	private static final String LEAVE = "/leave";
 	private static final String LEAVE_CHAT = "has left this chat";
 	private static final String NO_INTERLOCUTOR_CLIENT = "You haven't a client for conversation. Your message isn't sent!";
 	private static final String NO_INTERLOCUTOR_AGENT = "You can't leave this chat, because you haven't an agent for conversation!";

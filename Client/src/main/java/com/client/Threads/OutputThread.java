@@ -36,7 +36,7 @@ public class OutputThread implements Runnable {
 						System.out.println(msgHd.getMessage());
 					}
 					
-					if ("/e".equals(line)) {
+					if ("/exit".equals(line)) {
 						manager.terminateChat();
 					}
 	
