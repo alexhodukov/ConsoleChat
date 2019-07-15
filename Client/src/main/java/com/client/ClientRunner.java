@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Client {
+public class ClientRunner {
 
 	public static void main(String[] args) {		
 		try (Socket socket = new Socket("localhost", 8282);
